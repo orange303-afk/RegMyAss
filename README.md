@@ -1,5 +1,28 @@
 # RegMyAss ⚡
 
+> A Chrome Manifest V3 extension that helps register accounts using temporary or personal email, detects registration forms, generates account details, handles email verification, and stores credentials.
+
+## Features
+
+- Detects registration forms, including dynamic forms and forms inside frames, and fills them with generated account details.
+- Supports Mail.tm, Mail.gw, DropMail.me and Guerrilla Mail, plus Gmail through OAuth and Proton Mail with manual confirmation.
+- Finds verification links and one-time codes in email; a confirmation link can be opened directly from the extension.
+- Pauses for manual CAPTCHA completion and asks before submitting forms when configured.
+- Can save account details with Chrome Password Manager or an encrypted local vault.
+- Offers English and Spanish interface languages in **Settings → Language**. New installations default to English.
+
+## Build and install
+
+```bash
+npm install
+npm test
+npm run build
+```
+
+In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the generated `dist` folder. For Gmail OAuth setup, see [OAUTH_SETUP.md](OAUTH_SETUP.md). The local OAuth configuration and built files are excluded from Git.
+
+## Русский
+
 > Расширение для Google Chrome (Manifest V3), автоматизирующее процесс создания учетных записей на веб-сайтах при помощи временной электронной почты, умного анализа форм, генератора валидных адресов и ZIP-кодов, координации CAPTCHA и безопасного сохранения паролей.
 
 ---

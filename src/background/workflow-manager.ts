@@ -16,6 +16,7 @@ import { AccountManager } from '../accounts/account-manager';
 import { STORAGE_KEYS } from '../shared/constants';
 import { QuickPassError } from '../shared/errors';
 import { OwnMailProvider } from '../email/own-mail';
+import { t } from '../shared/i18n';
 
 export class WorkflowManager {
   private activeProcess: ActiveProcess | null = null;
@@ -298,11 +299,13 @@ export class WorkflowManager {
     await chrome.tabs.update(this.activeProcess.tabId, { active: true });
 
     // Show desktop notification
+    const stored = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const locale = (stored[STORAGE_KEYS.SETTINGS] as UserSettings | undefined)?.locale;
     chrome.notifications.create({
       type: 'basic',
       iconUrl: chrome.runtime.getURL('icons/icon48.png'),
-      title: 'RegMyAss: Требуется CAPTCHA',
-      message: 'Пожалуйста, решите капчу на открытой вкладке для продолжения регистрации.',
+      title: t(locale, 'RegMyAss: Требуется CAPTCHA'),
+      message: t(locale, 'Пожалуйста, решите капчу на открытой вкладке для продолжения регистрации.'),
     });
   }
 
@@ -405,8 +408,8 @@ export class WorkflowManager {
     chrome.notifications.create({
       type: 'basic',
       iconUrl: chrome.runtime.getURL('icons/icon48.png'),
-      title: 'RegMyAss: Регистрация завершена!',
-      message: `Аккаунт ${this.activeProcess.accountData.email} успешно создан.`,
+      title: t(settings.locale, 'RegMyAss: Регистрация завершена!'),
+      message: settings.locale === 'es' ? `Cuenta ${this.activeProcess.accountData.email} creada correctamente.` : `Account ${this.activeProcess.accountData.email} created successfully.`,
     });
   }
 

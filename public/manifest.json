@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "RegMyAss",
   "version": "1.0.0",
-  "description": "Автоматическая регистрация аккаунтов на сайтах с временной почтой и сохранением учетных данных.",
+  "description": "Register accounts with temporary or personal email and save credentials.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

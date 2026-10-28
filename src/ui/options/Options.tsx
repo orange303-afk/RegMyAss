@@ -5,6 +5,7 @@ import {
   UserSettings,
 } from '../../shared/types';
 import { DEFAULT_SETTINGS } from '../../shared/constants';
+import { translateError } from '../../shared/i18n';
 import { AddressGenerator } from '../../accounts/address-generator';
 import {
   Mail,
@@ -24,8 +25,11 @@ import {
 type Tab = 'providers' | 'registration' | 'profile' | 'security' | 'history' | 'diagnostic';
 
 export const Options: React.FC = () => {
+  const tr = (key: string) => translateError(settings.locale, key);
   const [activeTab, setActiveTab] = useState<Tab>('providers');
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+
+  useEffect(() => { document.documentElement.lang = settings.locale; }, [settings.locale]);
   const [accounts, setAccounts] = useState<StoredAccount[]>([]);
   const [logs, setLogs] = useState<DiagnosticLog[]>([]);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
@@ -107,11 +111,11 @@ export const Options: React.FC = () => {
         type: 'CONNECT_OWN_MAIL',
         payload: { service: ownMail.service },
       });
-      if (!response?.success) throw new Error(response?.error || 'Не удалось подключить почту.');
+      if (!response?.success) throw new Error(response?.error ? tr(response.error) : tr('Не удалось подключить почту.'));
       setSettings((current) => ({ ...current, ownMail: { ...ownMail, address: response.payload.address } }));
-      setOwnMailMessage(`Подключён ящик ${response.payload.address}`);
+      setOwnMailMessage(`${tr('Connected mailbox')} ${response.payload.address}`);
     } catch (error: any) {
-      setOwnMailMessage(error.message || 'Ошибка авторизации.');
+      setOwnMailMessage(error.message ? tr(error.message) : tr('Ошибка авторизации.'));
     } finally {
       setOwnMailBusy(false);
     }
@@ -121,7 +125,7 @@ export const Options: React.FC = () => {
     if (!settings.ownMail) return;
     await chrome.runtime.sendMessage({ type: 'DISCONNECT_OWN_MAIL', payload: { service: settings.ownMail.service } });
     setSettings((current) => ({ ...current, ownMail: current.ownMail ? { ...current.ownMail, address: '' } : undefined }));
-    setOwnMailMessage('Почта отключена.');
+    setOwnMailMessage(tr('Почта отключена.'));
   };
 
   const testProvider = async (providerId: string) => {
@@ -136,20 +140,20 @@ export const Options: React.FC = () => {
         setTestResult({
           id: providerId,
           success: true,
-          msg: `Успешно создан ящик: ${resp.payload.mailboxAddress}`,
+          msg: `${tr('Mailbox created:')} ${resp.payload.mailboxAddress}`,
         });
       } else {
         setTestResult({
           id: providerId,
           success: false,
-          msg: resp?.payload?.error || 'Ошибка проверки API',
+          msg: resp?.payload?.error ? tr(resp.payload.error) : tr('Ошибка проверки API'),
         });
       }
     } catch (e: any) {
       setTestResult({
         id: providerId,
         success: false,
-        msg: e.message || 'Ошибка запроса',
+        msg: e.message ? tr(e.message) : tr('Ошибка запроса'),
       });
     } finally {
       setTestingProvider(null);
@@ -157,7 +161,7 @@ export const Options: React.FC = () => {
   };
 
   const handleDeleteAccount = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить эту запись?')) return;
+    if (!confirm(tr('Вы уверены, что хотите удалить эту запись?'))) return;
     try {
       await chrome.runtime.sendMessage({
         type: 'DELETE_ACCOUNT_REQUEST',
@@ -187,21 +191,34 @@ export const Options: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/60 sticky top-0 z-10 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-600/30 text-indigo-400 rounded-xl">
               <Shield className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">RegMyAss Настройки</h1>
-              <p className="text-xs text-slate-400">Управление провайдерами, безопасностью и профилем данных</p>
+              <h1 className="text-lg font-bold text-white tracking-tight">{tr('RegMyAss Настройки')}</h1>
+              <p className="text-xs text-slate-400">{tr('Управление провайдерами, безопасностью и профилем данных')}</p>
             </div>
           </div>
+
+          <label className="flex items-center gap-2 text-xs text-slate-300">
+            <span>{settings.locale === 'es' ? 'Idioma' : 'Language'}</span>
+            <select
+              aria-label={settings.locale === 'es' ? 'Idioma de la interfaz' : 'Interface language'}
+              value={settings.locale}
+              onChange={(event) => saveSettings({ locale: event.target.value as UserSettings['locale'] })}
+              className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-100"
+            >
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </label>
 
           {savedSuccess && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/60 border border-emerald-700/60 text-emerald-400 text-xs rounded-lg animate-fade-in">
               <Check className="w-4 h-4" />
-              <span>Настройки сохранены</span>
+              <span>{tr('Настройки сохранены')}</span>
             </div>
           )}
         </div>
@@ -220,7 +237,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <Mail className="w-4 h-4" />
-            <span>Почтовые сервисы</span>
+            <span>{tr('Почтовые сервисы')}</span>
           </button>
 
           <button
@@ -232,7 +249,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <Sliders className="w-4 h-4" />
-            <span>Регистрация</span>
+            <span>{tr('Регистрация')}</span>
           </button>
 
           <button
@@ -244,7 +261,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <User className="w-4 h-4" />
-            <span>Профиль и адрес</span>
+            <span>{tr('Профиль и адрес')}</span>
           </button>
 
           <button
@@ -256,7 +273,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <Shield className="w-4 h-4" />
-            <span>Безопасность</span>
+            <span>{tr('Безопасность')}</span>
           </button>
 
           <button
@@ -268,7 +285,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <History className="w-4 h-4" />
-            <span>История аккаунтов</span>
+            <span>{tr('История аккаунтов')}</span>
           </button>
 
           <button
@@ -280,7 +297,7 @@ export const Options: React.FC = () => {
             }`}
           >
             <Activity className="w-4 h-4" />
-            <span>Диагностика</span>
+            <span>{tr('Диагностика')}</span>
           </button>
         </nav>
 
@@ -290,16 +307,16 @@ export const Options: React.FC = () => {
           {activeTab === 'providers' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-base font-semibold text-white">Почтовые сервисы</h2>
+                <h2 className="text-base font-semibold text-white">{tr('Почтовые сервисы')}</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Подключите личный ящик через OAuth или настройте временную почту.
+                  {tr('Подключите личный ящик через OAuth или настройте временную почту.')}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-800/50 border border-indigo-800/60 rounded-xl space-y-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Собственная почта</h3>
-                  <p className="text-xs text-slate-400 mt-1">Gmail проверяется автоматически после входа через Google. Для Proton Mail письмо открывается в браузере, а код вводится вручную.</p>
+                  <h3 className="text-sm font-semibold text-white">{tr('Собственная почта')}</h3>
+                  <p className="text-xs text-slate-400 mt-1">{tr('Gmail проверяется автоматически после входа через Google. Для Proton Mail письмо открывается в браузере, а код вводится вручную.')}</p>
                 </div>
                 <select
                   value={settings.ownMail?.service || 'gmail'}
@@ -310,24 +327,24 @@ export const Options: React.FC = () => {
                   <option value="proton">Proton Mail</option>
                 </select>
                 {settings.ownMail?.service === 'proton' ? <>
-                  <label className="block text-xs text-slate-300">Адрес Proton Mail</label>
+                  <label className="block text-xs text-slate-300">{tr('Адрес Proton Mail')}</label>
                   <input
                     type="email"
                     value={settings.ownMail.address}
                     onChange={(event) => setSettings((current) => ({ ...current, ownMail: { service: 'proton', address: event.target.value } }))}
                     onBlur={() => saveSettings({ ownMail: settings.ownMail })}
-                    placeholder="имя@proton.me"
+                    placeholder={tr('имя@proton.me')}
                     className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs"
                   />
-                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-medium">Открыть Proton Mail в браузере</button>
-                  <p className="text-[11px] text-slate-500">Войдите в Proton Mail на его сайте. Расширение использует этот адрес при регистрации, но не получает доступ к письмам.</p>
+                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-medium">{tr('Открыть Proton Mail в браузере')}</button>
+                  <p className="text-[11px] text-slate-500">{tr('Войдите в Proton Mail на его сайте. Расширение использует этот адрес при регистрации, но не получает доступ к письмам.')}</p>
                 </> : <>
-                  {!oauthConfigured && <p className="text-[11px] text-amber-300">В этой сборке не настроен Google OAuth. Инструкция — в OAUTH_SETUP.md.</p>}
-                  {settings.ownMail?.address && <p className="text-xs text-emerald-300">Подключено: {settings.ownMail.address}</p>}
+                  {!oauthConfigured && <p className="text-[11px] text-amber-300">{tr('В этой сборке не настроен Google OAuth. Инструкция — в OAUTH_SETUP.md.')}</p>}
+                  {settings.ownMail?.address && <p className="text-xs text-emerald-300">{tr('Подключено:')} {settings.ownMail.address}</p>}
                   {ownMailMessage && <p className="text-xs text-slate-300">{ownMailMessage}</p>}
                   <div className="flex gap-2">
-                    <button onClick={connectOwnMail} disabled={ownMailBusy || !oauthConfigured} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-xs font-medium">{ownMailBusy ? 'Вход...' : 'Войти через Google'}</button>
-                    {settings.ownMail?.address && <button onClick={disconnectOwnMail} className="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs">Отключить</button>}
+                    <button onClick={connectOwnMail} disabled={ownMailBusy || !oauthConfigured} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-xs font-medium">{ownMailBusy ? tr('Вход...') : tr('Войти через Google')}</button>
+                    {settings.ownMail?.address && <button onClick={disconnectOwnMail} className="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs">{tr('Отключить')}</button>}
                   </div>
                 </>}
               </div>
@@ -335,9 +352,9 @@ export const Options: React.FC = () => {
               {/* Auto Selection Toggle */}
               <div className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/60 rounded-xl">
                 <div>
-                  <h3 className="text-xs font-semibold text-white">Автоматический выбор сервиса</h3>
+                  <h3 className="text-xs font-semibold text-white">{tr('Автоматический выбор сервиса')}</h3>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Автоматически подбирать лучший доступный сервис с учетом лимитов и частоты успешных подтверждений
+                    {tr('Автоматически подбирать лучший доступный сервис с учетом лимитов и частоты успешных подтверждений')}
                   </p>
                 </div>
                 <input
@@ -351,35 +368,35 @@ export const Options: React.FC = () => {
               {/* Provider List */}
               <div className="space-y-3">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Доступные адаптеры
+                  {tr('Доступные адаптеры')}
                 </h3>
 
                 {[
                   {
                     id: 'mail-tm',
                     name: 'Mail.tm',
-                    desc: 'Полноценный REST API, создание ящиков по требованию, чтение сообщений без задержек.',
+                    desc: tr('Полноценный REST API, создание ящиков по требованию, чтение сообщений без задержек.'),
                     url: 'https://mail.tm',
                     free: true,
                   },
                   {
                     id: 'mail-gw',
                     name: 'Mail.gw',
-                    desc: 'Альтернативный узел Mail.tm с отдельными доменами и независимыми квотами.',
+                    desc: tr('Альтернативный узел Mail.tm с отдельными доменами и независимыми квотами.'),
                     url: 'https://mail.gw',
                     free: true,
                   },
                   {
                     id: 'dropmail',
                     name: 'DropMail.me',
-                    desc: 'Быстрый GraphQL API для мгновенной генерации ящика и веб-опроса писем.',
+                    desc: tr('Быстрый GraphQL API для мгновенной генерации ящика и веб-опроса писем.'),
                     url: 'https://dropmail.me',
                     free: true,
                   },
                   {
                     id: 'guerrilla',
                     name: 'Guerrilla Mail',
-                    desc: 'Классический сервис временной почты с публичным JSON API.',
+                    desc: tr('Классический сервис временной почты с публичным JSON API.'),
                     url: 'https://guerrillamail.com',
                     free: true,
                   },
@@ -398,7 +415,7 @@ export const Options: React.FC = () => {
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-white">{prov.name}</span>
                             <span className="text-[10px] px-1.5 py-0.5 bg-emerald-950/80 border border-emerald-800 text-emerald-400 rounded">
-                              Бесплатный API
+                              {tr('Бесплатный API')}
                             </span>
                           </div>
                           <p className="text-xs text-slate-400">{prov.desc}</p>
@@ -411,7 +428,7 @@ export const Options: React.FC = () => {
                             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
                           >
                             <RefreshCw className={`w-3 h-3 ${isTesting ? 'animate-spin' : ''}`} />
-                            <span>Проверить API</span>
+                            <span>{tr('Проверить API')}</span>
                           </button>
 
                           <input
@@ -450,9 +467,9 @@ export const Options: React.FC = () => {
           {activeTab === 'registration' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-base font-semibold text-white">Параметры генерации и регистрации</h2>
+                <h2 className="text-base font-semibold text-white">{tr('Параметры генерации и регистрации')}</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Настройте политики генерации паролей, имен пользователей и поведение отправки форм.
+                  {tr('Настройте политики генерации паролей, имен пользователей и поведение отправки форм.')}
                 </p>
               </div>
 
@@ -460,9 +477,9 @@ export const Options: React.FC = () => {
                 {/* Password Length */}
                 <div className="p-4 bg-slate-800/40 border border-slate-800 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-white">Длина генерируемого пароля</label>
+                    <label className="text-xs font-medium text-white">{tr('Длина генерируемого пароля')}</label>
                     <span className="text-xs font-mono text-indigo-400 font-semibold">
-                      {settings.passwordLength} символов
+                      {settings.passwordLength} {tr('символов')}
                     </span>
                   </div>
                   <input
@@ -474,16 +491,16 @@ export const Options: React.FC = () => {
                     className="w-full accent-indigo-500 cursor-pointer"
                   />
                   <p className="text-[11px] text-slate-400">
-                    Пароли генерируются с помощью криптостойкого Web Crypto API (crypto.getRandomValues).
+                    {tr('Пароли генерируются с помощью криптостойкого Web Crypto API (crypto.getRandomValues).')}
                   </p>
                 </div>
 
                 {/* Confirm Before Submit */}
                 <div className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-800 rounded-xl">
                   <div>
-                    <h3 className="text-xs font-medium text-white">Запрашивать согласие перед отправкой</h3>
+                    <h3 className="text-xs font-medium text-white">{tr('Запрашивать согласие перед отправкой')}</h3>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      Показать заполненные поля и запросить подтверждение пользователя перед кликом по кнопке отправки
+                      {tr('Показать заполненные поля и запросить подтверждение пользователя перед кликом по кнопке отправки')}
                     </p>
                   </div>
                   <input
@@ -497,9 +514,9 @@ export const Options: React.FC = () => {
                 {/* Auto continue after CAPTCHA */}
                 <div className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-800 rounded-xl">
                   <div>
-                    <h3 className="text-xs font-medium text-white">Автоматическое продолжение после CAPTCHA</h3>
+                    <h3 className="text-xs font-medium text-white">{tr('Автоматическое продолжение после CAPTCHA')}</h3>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      Определять завершение проверки капчи и продолжать сценарий без лишних кликов
+                      {tr('Определять завершение проверки капчи и продолжать сценарий без лишних кликов')}
                     </p>
                   </div>
                   <input
@@ -513,9 +530,9 @@ export const Options: React.FC = () => {
                 {/* Email Timeout */}
                 <div className="p-4 bg-slate-800/40 border border-slate-800 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-white">Таймаут ожидания письма (секунды)</label>
+                    <label className="text-xs font-medium text-white">{tr('Таймаут ожидания письма (секунды)')}</label>
                     <span className="text-xs font-mono text-indigo-400 font-semibold">
-                      {settings.emailTimeoutSeconds} сек.
+                      {settings.emailTimeoutSeconds} {tr('сек.')}
                     </span>
                   </div>
                   <input
@@ -532,9 +549,9 @@ export const Options: React.FC = () => {
                 {/* Reuse existing */}
                 <div className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-800 rounded-xl">
                   <div>
-                    <h3 className="text-xs font-medium text-white">Повторное использование аккаунтов</h3>
+                    <h3 className="text-xs font-medium text-white">{tr('Повторное использование аккаунтов')}</h3>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      Если для текущего сайта уже есть сохранённый аккаунт, не создавать новый, а предлагать вход
+                      {tr('Если для текущего сайта уже есть сохранённый аккаунт, не создавать новый, а предлагать вход')}
                     </p>
                   </div>
                   <input
@@ -552,19 +569,18 @@ export const Options: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-base font-semibold text-white">Профиль пользователя и адрес</h2>
+                <h2 className="text-base font-semibold text-white">{tr('Профиль пользователя и адрес')}</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Настройте персональные данные для форм регистрации. Если сайт запрашивает адрес, город или ZIP-код,
-                  RegMyAss автоматически заполнит их из профиля или сгенерирует валидные данные для выбранной страны.
+                  {tr('Настройте персональные данные для форм регистрации. Если сайт запрашивает адрес, город или ZIP-код, RegMyAss автоматически заполнит их из профиля или сгенерирует валидные данные для выбранной страны.')}
                 </p>
               </div>
 
               {/* Toggle Custom Profile */}
               <div className="flex items-center justify-between p-4 bg-slate-800/40 border border-slate-800 rounded-xl">
                 <div>
-                  <h3 className="text-xs font-semibold text-white">Использовать фиксированные данные профиля</h3>
+                  <h3 className="text-xs font-semibold text-white">{tr('Использовать фиксированные данные профиля')}</h3>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Если включено, будут подставляться указанные ниже имя и фамилия. Если выключено — данные генерируются случайно.
+                    {tr('Если включено, будут подставляться указанные ниже имя и фамилия. Если выключено — данные генерируются случайно.')}
                   </p>
                 </div>
                 <input
@@ -585,10 +601,10 @@ export const Options: React.FC = () => {
               {/* Names and Country */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Имя (First Name)</label>
+                  <label className="text-xs font-medium text-slate-300">{tr('Имя (First Name)')}</label>
                   <input
                     type="text"
-                    placeholder="Например: Иван или Alex"
+                    placeholder={tr('Например: Иван или Alex')}
                     value={settings.profile?.firstName || ''}
                     onChange={(e) =>
                       saveSettings({
@@ -603,10 +619,10 @@ export const Options: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Фамилия (Last Name)</label>
+                  <label className="text-xs font-medium text-slate-300">{tr('Фамилия (Last Name)')}</label>
                   <input
                     type="text"
-                    placeholder="Например: Иванов или Miller"
+                    placeholder={tr('Например: Иванов или Miller')}
                     value={settings.profile?.lastName || ''}
                     onChange={(e) =>
                       saveSettings({
@@ -625,9 +641,9 @@ export const Options: React.FC = () => {
               <div className="p-4 bg-slate-800/30 border border-slate-800 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-xs font-semibold text-white">Страна для генерации адреса</label>
+                    <label className="text-xs font-semibold text-white">{tr('Страна для генерации адреса')}</label>
                     <p className="text-[11px] text-slate-400">
-                      Для выбранной страны берутся реальные города, улицы и валидные почтовые индексы (ZIP/Postal Code).
+                      {tr('Для выбранной страны берутся реальные города, улицы и валидные почтовые индексы (ZIP/Postal Code).')}
                     </p>
                   </div>
                   <button
@@ -647,7 +663,7 @@ export const Options: React.FC = () => {
                     className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Сгенерировать случайный адрес</span>
+                    <span>{tr('Сгенерировать случайный адрес')}</span>
                   </button>
                 </div>
 
@@ -669,21 +685,21 @@ export const Options: React.FC = () => {
                   }}
                   className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500"
                 >
-                  <option value="US">🇺🇸 United States (США - ZIP: 90210, 10001, 60601)</option>
-                  <option value="DE">🇩🇪 Germany (Германия - PLZ: 10115, 80331)</option>
-                  <option value="GB">🇬🇧 United Kingdom (Великобритания - Postcode: SW1A 1AA)</option>
-                  <option value="FR">🇫🇷 France (Франция - Code: 75001, 69001)</option>
-                  <option value="RU">🇷🇺 Россия (Индекс: 101000, 190000)</option>
-                  <option value="CA">🇨🇦 Canada (Канада - Postal Code: M5H 2N2)</option>
+                  <option value="US">{tr('🇺🇸 United States (США - ZIP: 90210, 10001, 60601)')}</option>
+                  <option value="DE">{tr('🇩🇪 Germany (Германия - PLZ: 10115, 80331)')}</option>
+                  <option value="GB">{tr('🇬🇧 United Kingdom (Великобритания - Postcode: SW1A 1AA)')}</option>
+                  <option value="FR">{tr('🇫🇷 France (Франция - Code: 75001, 69001)')}</option>
+                  <option value="RU">{tr('🇷🇺 Россия (Индекс: 101000, 190000)')}</option>
+                  <option value="CA">{tr('🇨🇦 Canada (Канада - Postal Code: M5H 2N2)')}</option>
                 </select>
 
                 {/* Address Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="space-y-1">
-                    <label className="text-[11px] text-slate-400">Город (City)</label>
+                    <label className="text-[11px] text-slate-400">{tr('Город (City)')}</label>
                     <input
                       type="text"
-                      placeholder="Город"
+                      placeholder={tr('Город')}
                       value={settings.profile?.city || ''}
                       onChange={(e) =>
                         saveSettings({
@@ -698,7 +714,7 @@ export const Options: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-slate-400">Почтовый индекс (ZIP / Postal Code)</label>
+                    <label className="text-[11px] text-slate-400">{tr('Почтовый индекс (ZIP / Postal Code)')}</label>
                     <input
                       type="text"
                       placeholder="ZIP code"
@@ -716,10 +732,10 @@ export const Options: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 md:col-span-2">
-                    <label className="text-[11px] text-slate-400">Улица и дом (Street Address)</label>
+                    <label className="text-[11px] text-slate-400">{tr('Улица и дом (Street Address)')}</label>
                     <input
                       type="text"
-                      placeholder="Улица, дом"
+                      placeholder={tr('Улица, дом')}
                       value={settings.profile?.street || ''}
                       onChange={(e) =>
                         saveSettings({
@@ -734,10 +750,10 @@ export const Options: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 md:col-span-2">
-                    <label className="text-[11px] text-slate-400">Телефон (Phone number)</label>
+                    <label className="text-[11px] text-slate-400">{tr('Телефон (Phone number)')}</label>
                     <input
                       type="text"
-                      placeholder="Телефон"
+                      placeholder={tr('Телефон')}
                       value={settings.profile?.phone || ''}
                       onChange={(e) =>
                         saveSettings({
@@ -759,16 +775,16 @@ export const Options: React.FC = () => {
           {activeTab === 'security' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-base font-semibold text-white">Безопасность и хранилище</h2>
+                <h2 className="text-base font-semibold text-white">{tr('Безопасность и хранилище')}</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Выберите способ хранения учётных данных и настройте шифрование.
+                  {tr('Выберите способ хранения учётных данных и настройте шифрование.')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 {/* Storage Mode Selection */}
                 <div className="p-4 bg-slate-800/40 border border-slate-800 rounded-xl space-y-3">
-                  <label className="text-xs font-semibold text-white">Способ сохранения паролей</label>
+                  <label className="text-xs font-semibold text-white">{tr('Способ сохранения паролей')}</label>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <label
@@ -789,7 +805,7 @@ export const Options: React.FC = () => {
                         />
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        Использовать штатный механизм Chrome для сохранения и автозаполнения паролей.
+                        {tr('Использовать штатный механизм Chrome для сохранения и автозаполнения паролей.')}
                       </p>
                     </label>
 
@@ -801,7 +817,7 @@ export const Options: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold">Защищённое хранилище (AES-GCM)</span>
+                        <span className="text-xs font-semibold">{tr('Защищённое хранилище (AES-GCM)')}</span>
                         <input
                           type="radio"
                           name="storageMode"
@@ -811,7 +827,7 @@ export const Options: React.FC = () => {
                         />
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        Шифрование секретов мастер-паролем через Web Crypto API и PBKDF2/AES-256-GCM.
+                        {tr('Шифрование секретов мастер-паролем через Web Crypto API и PBKDF2/AES-256-GCM.')}
                       </p>
                     </label>
                   </div>
@@ -822,17 +838,16 @@ export const Options: React.FC = () => {
                   <div className="p-4 bg-slate-800/40 border border-slate-800 rounded-xl space-y-3">
                     <h3 className="text-xs font-semibold text-white flex items-center gap-2">
                       <Lock className="w-4 h-4 text-indigo-400" />
-                      <span>Мастер-пароль хранилища</span>
+                      <span>{tr('Мастер-пароль хранилища')}</span>
                     </h3>
                     <p className="text-[11px] text-slate-400">
-                      Мастер-пароль никогда не сохраняется на диске. Он используется только в оперативной памяти
-                      для вычисления ключа расшифровки.
+                      {tr('Мастер-пароль никогда не сохраняется на диске. Он используется только в оперативной памяти для вычисления ключа расшифровки.')}
                     </p>
 
                     <div className="flex items-center gap-2">
                       <input
                         type="password"
-                        placeholder="Введите мастер-пароль"
+                        placeholder={tr('Введите мастер-пароль')}
                         value={masterPassword}
                         onChange={(e) => setMasterPassword(e.target.value)}
                         className="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-3 py-2 flex-1 focus:outline-none focus:border-indigo-500"
@@ -840,16 +855,16 @@ export const Options: React.FC = () => {
                       <button
                         onClick={() => {
                           if (masterPassword.length < 8) {
-                            setVaultMessage('Пароль должен содержать минимум 8 символов');
+                            setVaultMessage(tr('Пароль должен содержать минимум 8 символов'));
                             return;
                           }
                           setVaultUnlocked(true);
-                          setVaultMessage('Хранилище разблокировано');
+                          setVaultMessage(tr('Хранилище разблокировано'));
                           saveSettings({ isVaultConfigured: true });
                         }}
                         className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white rounded-lg transition-colors cursor-pointer"
                       >
-                        {vaultUnlocked ? 'Обновить' : 'Разблокировать'}
+                        {vaultUnlocked ? tr('Обновить') : tr('Разблокировать')}
                       </button>
                     </div>
 
@@ -867,9 +882,9 @@ export const Options: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-semibold text-white">История зарегистрированных аккаунтов</h2>
+                  <h2 className="text-base font-semibold text-white">{tr('История зарегистрированных аккаунтов')}</h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    Список сайтов, для которых были созданы учётные записи.
+                    {tr('Список сайтов, для которых были созданы учётные записи.')}
                   </p>
                 </div>
                 <button
@@ -877,14 +892,14 @@ export const Options: React.FC = () => {
                   className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg flex items-center gap-1.5 border border-slate-700 transition-colors"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Обновить</span>
+                  <span>{tr('Обновить')}</span>
                 </button>
               </div>
 
               {accounts.length === 0 ? (
                 <div className="p-8 text-center border border-dashed border-slate-800 rounded-xl space-y-2 text-slate-500 text-xs">
-                  <p>Пока нет созданных аккаунтов.</p>
-                  <p className="text-[11px]">Они появятся здесь после первой автоматической регистрации на любом сайте.</p>
+                  <p>{tr('Пока нет созданных аккаунтов.')}</p>
+                  <p className="text-[11px]">{tr('Они появятся здесь после первой автоматической регистрации на любом сайте.')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-800 border border-slate-800 rounded-xl overflow-hidden">
@@ -897,7 +912,7 @@ export const Options: React.FC = () => {
                         </div>
                         <p className="text-[11px] font-mono text-slate-400">{acc.email}</p>
                         <p className="text-[10px] text-slate-500">
-                          Создан: {new Date(acc.createdAt).toLocaleDateString()}
+                          {tr('Создан:')} {new Date(acc.createdAt).toLocaleDateString(settings.locale === 'es' ? 'es-ES' : 'en-US')}
                         </p>
                       </div>
 
@@ -905,7 +920,7 @@ export const Options: React.FC = () => {
                         <button
                           onClick={() => handleDeleteAccount(acc.id)}
                           className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
-                          title="Удалить запись"
+                          title={tr('Удалить запись')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -922,9 +937,9 @@ export const Options: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-semibold text-white">Журнал диагностики</h2>
+                  <h2 className="text-base font-semibold text-white">{tr('Журнал диагностики')}</h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    События жизненного цикла, запросы к API провайдеров и распознавание форм.
+                    {tr('События жизненного цикла, запросы к API провайдеров и распознавание форм.')}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -933,7 +948,7 @@ export const Options: React.FC = () => {
                     className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg flex items-center gap-1.5 border border-slate-700 transition-colors"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Экспорт JSON</span>
+                    <span>{tr('Экспорт JSON')}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -943,14 +958,14 @@ export const Options: React.FC = () => {
                     className="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs rounded-lg flex items-center gap-1.5 border border-rose-800/60 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>Очистить</span>
+                    <span>{tr('Очистить')}</span>
                   </button>
                 </div>
               </div>
 
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 font-mono text-[11px] max-h-96 overflow-y-auto space-y-2">
                 {logs.length === 0 ? (
-                  <p className="text-slate-600 text-center py-6">Журнал пуст</p>
+                  <p className="text-slate-600 text-center py-6">{tr('Журнал пуст')}</p>
                 ) : (
                   logs.map((log) => (
                     <div key={log.id} className="flex items-start gap-2 border-b border-slate-900 pb-1.5 last:border-none">

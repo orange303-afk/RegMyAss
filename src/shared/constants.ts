@@ -5,6 +5,7 @@
 import { UserSettings } from './types';
 
 export const DEFAULT_SETTINGS: UserSettings = {
+  locale: 'en',
   ownMail: { service: 'gmail', address: '' },
   autoSelectProvider: true,
   preferredProviderId: 'mail-tm',

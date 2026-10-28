@@ -7,6 +7,7 @@ import {
   UserSettings,
 } from '../../shared/types';
 import { DEFAULT_SETTINGS } from '../../shared/constants';
+import { translateError } from '../../shared/i18n';
 import { MessageParser } from '../../email/message-parser';
 import {
   Shield,
@@ -33,8 +34,11 @@ type PictureInPictureApi = {
 };
 
 export const Popup: React.FC = () => {
+  const tr = (key: string) => translateError(settings.locale, key);
   const [activeProcess, setActiveProcess] = useState<ActiveProcess | null>(null);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+
+  useEffect(() => { document.documentElement.lang = settings.locale; }, [settings.locale]);
   const [existingAccount, setExistingAccount] = useState<StoredAccount | null>(null);
   const [currentOrigin, setCurrentOrigin] = useState<string>('');
   const [currentTabId, setCurrentTabId] = useState<number>(0);
@@ -86,11 +90,11 @@ export const Popup: React.FC = () => {
           });
         }
       } else {
-        setDetailError(resp?.error || 'Не удалось загрузить письмо. Попробуйте ещё раз.');
+        setDetailError(resp?.error ? tr(resp.error) : tr('Не удалось загрузить письмо. Попробуйте ещё раз.'));
       }
     } catch (e) {
       console.error(e);
-      setDetailError('Не удалось загрузить письмо. Попробуйте ещё раз.');
+      setDetailError(tr('Не удалось загрузить письмо. Попробуйте ещё раз.'));
     } finally {
       setLoadingDetail(false);
     }
@@ -109,7 +113,7 @@ export const Popup: React.FC = () => {
       await chrome.tabs.create({ url: safeLink, active: true });
     } catch (e) {
       console.error(e);
-      setDetailError('Не удалось открыть ссылку подтверждения.');
+      setDetailError(tr('Не удалось открыть ссылку подтверждения.'));
     }
   };
 
@@ -138,11 +142,11 @@ export const Popup: React.FC = () => {
       if (resp?.success && Array.isArray(resp?.payload?.messages)) {
         setInboxMessages(resp.payload.messages);
       } else {
-        setInboxError(resp?.error || 'Не удалось получить письма. Попробуйте ещё раз.');
+        setInboxError(resp?.error ? tr(resp.error) : tr('Не удалось получить письма. Попробуйте ещё раз.'));
       }
     } catch (e) {
       console.error(e);
-      setInboxError('Не удалось получить письма. Попробуйте ещё раз.');
+      setInboxError(tr('Не удалось получить письма. Попробуйте ещё раз.'));
     } finally {
       setLoadingInbox(false);
     }
@@ -181,8 +185,17 @@ export const Popup: React.FC = () => {
       }
     };
 
+    const settingsListener = (changes: { [key: string]: chrome.storage.StorageChange }, area: string) => {
+      if (area === 'local' && changes.quickpass_settings?.newValue) {
+        setSettings({ ...DEFAULT_SETTINGS, ...changes.quickpass_settings.newValue });
+      }
+    };
     chrome.runtime.onMessage.addListener(messageListener);
-    return () => chrome.runtime.onMessage.removeListener(messageListener);
+    chrome.storage.onChanged.addListener(settingsListener);
+    return () => {
+      chrome.runtime.onMessage.removeListener(messageListener);
+      chrome.storage.onChanged.removeListener(settingsListener);
+    };
   }, []);
 
   const handleStartRegistration = async () => {
@@ -286,7 +299,7 @@ export const Popup: React.FC = () => {
 
     const api = (window as Window & { documentPictureInPicture?: PictureInPictureApi }).documentPictureInPicture;
     if (!api) {
-      setPinError('Режим «Поверх окон» недоступен в этом браузере.');
+      setPinError(tr('Режим «Поверх окон» недоступен в этом браузере.'));
       return;
     }
 
@@ -313,36 +326,36 @@ export const Popup: React.FC = () => {
       }, { once: true });
     } catch (error) {
       console.error('Could not open always-on-top window:', error);
-      setPinError('Не удалось открыть окно поверх остальных.');
+      setPinError(tr('Не удалось открыть окно поверх остальных.'));
     }
   };
 
   const getStateBadge = (state?: RegistrationState) => {
     switch (state) {
       case 'detecting':
-        return { label: 'Анализ страницы...', color: 'text-amber-400', spin: true };
+        return { label: tr('Анализ страницы...'), color: 'text-amber-400', spin: true };
       case 'creating_email':
-        return { label: 'Создание email...', color: 'text-blue-400', spin: true };
+        return { label: tr('Создание email...'), color: 'text-blue-400', spin: true };
       case 'filling_form':
-        return { label: 'Заполнение формы...', color: 'text-indigo-400', spin: true };
+        return { label: tr('Заполнение формы...'), color: 'text-indigo-400', spin: true };
       case 'awaiting_consent':
-        return { label: 'Ожидание согласия', color: 'text-amber-300', spin: false };
+        return { label: tr('Ожидание согласия'), color: 'text-amber-300', spin: false };
       case 'submitting':
-        return { label: 'Отправка формы...', color: 'text-indigo-400', spin: true };
+        return { label: tr('Отправка формы...'), color: 'text-indigo-400', spin: true };
       case 'awaiting_captcha':
-        return { label: 'Требуется CAPTCHA', color: 'text-yellow-400', spin: false };
+        return { label: tr('Требуется CAPTCHA'), color: 'text-yellow-400', spin: false };
       case 'awaiting_email':
-        return { label: 'Ожидание письма...', color: 'text-purple-400', spin: true };
+        return { label: tr('Ожидание письма...'), color: 'text-purple-400', spin: true };
       case 'verifying':
-        return { label: 'Подтверждение...', color: 'text-teal-400', spin: true };
+        return { label: tr('Подтверждение...'), color: 'text-teal-400', spin: true };
       case 'logging_in':
-        return { label: 'Авторизация...', color: 'text-blue-400', spin: true };
+        return { label: tr('Авторизация...'), color: 'text-blue-400', spin: true };
       case 'completed':
-        return { label: 'Успешно завершено!', color: 'text-emerald-400', spin: false };
+        return { label: tr('Успешно завершено!'), color: 'text-emerald-400', spin: false };
       case 'failed':
-        return { label: 'Ошибка', color: 'text-rose-400', spin: false };
+        return { label: tr('Ошибка'), color: 'text-rose-400', spin: false };
       case 'cancelled':
-        return { label: 'Отменено', color: 'text-slate-400', spin: false };
+        return { label: tr('Отменено'), color: 'text-slate-400', spin: false };
       default:
         return null;
     }
@@ -362,7 +375,7 @@ export const Popup: React.FC = () => {
           <div>
             <h1 className="text-sm font-semibold tracking-wide text-white">RegMyAss</h1>
             <p className="text-[11px] text-slate-400 truncate max-w-[170px]" title={currentOrigin}>
-              {currentOrigin ? currentOrigin.replace(/^https?:\/\//, '') : 'Вкладка не выбрана'}
+              {currentOrigin ? currentOrigin.replace(/^https?:\/\//, '') : tr('Вкладка не выбрана')}
             </p>
           </div>
         </div>
@@ -371,15 +384,15 @@ export const Popup: React.FC = () => {
           <button
             onClick={toggleAlwaysOnTop}
             className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
-            title={isPinned ? 'Вернуть обычное окно' : 'Поверх всех окон'}
-            aria-label={isPinned ? 'Вернуть обычное окно' : 'Поверх всех окон'}
+            title={isPinned ? tr('Вернуть обычное окно') : tr('Поверх всех окон')}
+            aria-label={isPinned ? tr('Вернуть обычное окно') : tr('Поверх всех окон')}
           >
             {isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
           </button>
           <button
             onClick={openOptions}
             className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
-            title="Настройки"
+            title={tr('Настройки')}
           >
             <SettingsIcon className="w-4 h-4" />
           </button>
@@ -395,7 +408,7 @@ export const Popup: React.FC = () => {
           <div className="p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-xl space-y-2">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
               <CheckCircle2 className="w-4 h-4" />
-              <span>Есть сохранённый аккаунт!</span>
+              <span>{tr('Есть сохранённый аккаунт!')}</span>
             </div>
             <div className="text-xs text-slate-300">
               <p className="font-mono text-[11px] truncate">{existingAccount.email}</p>
@@ -405,7 +418,7 @@ export const Popup: React.FC = () => {
               className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 transition-colors"
             >
               <LogIn className="w-3.5 h-3.5" />
-              Войти с сохранённым аккаунтом
+              {tr('Войти с сохранённым аккаунтом')}
             </button>
           </div>
         )}
@@ -414,7 +427,7 @@ export const Popup: React.FC = () => {
         {activeProcess && (
           <div className="p-3 bg-slate-800/80 border border-slate-700/60 rounded-xl space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-300">Текущий статус:</span>
+              <span className="text-xs font-medium text-slate-300">{tr('Текущий статус:')}</span>
               {statusInfo && (
                 <div className={`flex items-center gap-1.5 text-xs font-semibold ${statusInfo.color}`}>
                   {statusInfo.spin && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -443,14 +456,14 @@ export const Popup: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-indigo-300 font-semibold flex items-center gap-1.5">
                     <KeyRound className="w-3.5 h-3.5 text-indigo-400" />
-                    Код подтверждения:
+                    {tr('Код подтверждения:')}
                   </span>
                   <button
                     onClick={() => copyCode(activeProcess.verificationCode!)}
                     className="text-[11px] text-indigo-300 hover:text-white flex items-center gap-1 bg-indigo-900/40 px-2 py-0.5 rounded cursor-pointer"
                   >
                     <Copy className="w-3 h-3" />
-                    <span>{copied ? 'Скопировано!' : 'Скопировать'}</span>
+                    <span>{copied ? tr('Скопировано!') : tr('Скопировать')}</span>
                   </button>
                 </div>
                 <div className="text-center py-2 bg-slate-900 border border-slate-800 rounded-lg font-mono text-xl font-bold tracking-widest text-emerald-400 select-all">
@@ -460,7 +473,7 @@ export const Popup: React.FC = () => {
                   onClick={handleRetryFillOtp}
                   className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  Вставить код в форму на сайте
+                  {tr('Вставить код в форму на сайте')}
                 </button>
               </div>
             )}
@@ -470,7 +483,7 @@ export const Popup: React.FC = () => {
                 onClick={() => openVerificationLink(activeProcess.verificationLink!)}
                 className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <ExternalLink className="w-3.5 h-3.5" /> Открыть ссылку подтверждения
+                <ExternalLink className="w-3.5 h-3.5" /> {tr('Открыть ссылку подтверждения')}
               </button>
             )}
 
@@ -483,7 +496,7 @@ export const Popup: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Входящие письма ({inboxMessages.length})</span>
+                    <span>{tr('Входящие письма')} ({inboxMessages.length})</span>
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showInbox ? 'rotate-180' : ''}`} />
                 </button>
@@ -491,7 +504,7 @@ export const Popup: React.FC = () => {
                 {showInbox && (
                   <div className="p-2 bg-slate-900/90 border border-slate-800 rounded-lg text-[11px] space-y-2 max-h-56 overflow-y-auto">
                     <button onClick={() => fetchInbox(true)} disabled={loadingInbox} className="flex items-center gap-1 text-indigo-300 hover:text-white disabled:opacity-50 cursor-pointer">
-                      <RefreshCw className="w-3 h-3" /> Обновить письма
+                      <RefreshCw className="w-3 h-3" /> {tr('Обновить письма')}
                     </button>
                     {inboxError && <p className="text-rose-300">{inboxError}</p>}
                     {/* Active Full Message Viewer */}
@@ -521,7 +534,7 @@ export const Popup: React.FC = () => {
                             return (
                               <div className="p-2 bg-emerald-950/60 border border-emerald-700/60 rounded-lg space-y-1.5">
                                 <div className="flex items-center justify-between text-[11px] text-emerald-300 font-semibold">
-                                  <span>Код подтверждения:</span>
+                                  <span>{tr('Код подтверждения:')}</span>
                                   <span className="font-mono text-sm tracking-widest text-emerald-200 bg-emerald-900/60 px-2 py-0.5 rounded">
                                     {ext.code}
                                   </span>
@@ -536,14 +549,14 @@ export const Popup: React.FC = () => {
                                     }}
                                     className="flex-1 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-medium rounded transition-colors cursor-pointer"
                                   >
-                                    Вставить в сайт
+                                    {tr('Вставить в сайт')}
                                   </button>
                                   <button
                                     onClick={() => copyCode(ext.code!)}
                                     className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] rounded transition-colors flex items-center gap-1 cursor-pointer"
                                   >
                                     <Copy className="w-3 h-3" />
-                                    {copied ? 'Скопировано' : 'Копировать'}
+                                    {copied ? tr('Скопировано') : tr('Копировать')}
                                   </button>
                                 </div>
                               </div>
@@ -564,7 +577,7 @@ export const Popup: React.FC = () => {
                               className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium rounded flex items-center justify-center gap-1.5 cursor-pointer"
                               title={link}
                             >
-                              <ExternalLink className="w-3 h-3" /> Открыть ссылку подтверждения
+                              <ExternalLink className="w-3 h-3" /> {tr('Открыть ссылку подтверждения')}
                             </button>
                           ) : null;
                         })()}
@@ -574,8 +587,8 @@ export const Popup: React.FC = () => {
                         <div className="p-2 bg-slate-950 rounded border border-slate-800 text-[10px] font-mono text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed">
                           {activeMessageDetail.text ||
                             activeMessageDetail.html?.replace(/<[^>]+>/g, ' ') ||
-                            'Текст письма пока недоступен'}
-                          {loadingDetail && <div className="text-slate-400">Загрузка полного письма...</div>}
+                            tr('Текст письма пока недоступен')}
+                          {loadingDetail && <div className="text-slate-400">{tr('Загрузка полного письма...')}</div>}
                         </div>
                       </div>
                     )}
@@ -583,10 +596,10 @@ export const Popup: React.FC = () => {
                     {loadingInbox ? (
                       <div className="flex items-center justify-center py-2 text-slate-400 gap-1.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
-                        <span>Проверка почты...</span>
+                        <span>{tr('Проверка почты...')}</span>
                       </div>
                     ) : inboxMessages.length === 0 ? (
-                      <p className="text-slate-500 text-center py-2">Новых писем пока нет</p>
+                      <p className="text-slate-500 text-center py-2">{tr('Новых писем пока нет')}</p>
                     ) : (
                       inboxMessages.map((msg) => (
                         <div
@@ -603,7 +616,7 @@ export const Popup: React.FC = () => {
                           <div className="pt-0.5 flex items-center justify-end text-[9px] text-indigo-400 font-medium">
                             <span className="flex items-center gap-0.5">
                               <Eye className="w-3 h-3" />
-                              Открыть и прочитать
+                              {tr('Открыть и прочитать')}
                             </span>
                           </div>
                         </div>
@@ -618,13 +631,13 @@ export const Popup: React.FC = () => {
             {activeProcess.state === 'awaiting_consent' && (
               <div className="space-y-2 pt-1">
                 <p className="text-[11px] text-amber-300">
-                  Форма заполнена данными выше. Подтвердите отправку:
+                  {tr('Форма заполнена данными выше. Подтвердите отправку:')}
                 </p>
                 <button
                   onClick={handleConfirmSubmit}
                   className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
                 >
-                  Отправить регистрационную форму
+                  {tr('Отправить регистрационную форму')}
                 </button>
               </div>
             )}
@@ -634,13 +647,13 @@ export const Popup: React.FC = () => {
               <div className="space-y-2 pt-1">
                 <div className="p-2 bg-amber-950/40 border border-amber-800/50 rounded-lg text-[11px] text-amber-200 flex items-start gap-1.5">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
-                  <span>Обнаружена капча. Пожалуйста, решите её во вкладке сайта.</span>
+                  <span>{tr('Обнаружена капча. Пожалуйста, решите её во вкладке сайта.')}</span>
                 </div>
                 <button
                   onClick={handleManualCaptchaDone}
                   className="w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
                 >
-                  Я прошёл проверку — продолжить
+                  {tr('Я прошёл проверку — продолжить')}
                 </button>
               </div>
             )}
@@ -649,15 +662,15 @@ export const Popup: React.FC = () => {
             {activeProcess.state === 'awaiting_email' && (
               <div className="space-y-2 pt-1">
                 {activeProcess.mailbox?.id.startsWith('proton:') && <div className="space-y-2">
-                  <p className="text-[11px] text-purple-200">Откройте Proton Mail, найдите письмо подтверждения и скопируйте код или перейдите по ссылке.</p>
-                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded-lg">Открыть Proton Mail</button>
-                  <input value={manualCode} onChange={(event) => setManualCode(event.target.value)} placeholder="Код из письма, если есть" className="w-full p-2 bg-slate-900 border border-slate-700 text-slate-100 text-xs rounded-lg" />
+                  <p className="text-[11px] text-purple-200">{tr('Откройте Proton Mail, найдите письмо подтверждения и скопируйте код или перейдите по ссылке.')}</p>
+                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded-lg">{tr('Открыть Proton Mail')}</button>
+                  <input value={manualCode} onChange={(event) => setManualCode(event.target.value)} placeholder={tr('Код из письма, если есть')} className="w-full p-2 bg-slate-900 border border-slate-700 text-slate-100 text-xs rounded-lg" />
                 </div>}
                 <div className="p-2.5 bg-purple-950/40 border border-purple-800/50 rounded-xl space-y-1.5 text-[11px] text-purple-200">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-medium text-purple-300">
                       <Mail className="w-3.5 h-3.5 animate-pulse text-purple-400" />
-                      {activeProcess.mailbox?.id.startsWith('proton:') ? 'Ожидание ручного подтверждения' : 'Опрос входящих писем...'}
+                      {activeProcess.mailbox?.id.startsWith('proton:') ? tr('Ожидание ручного подтверждения') : tr('Опрос входящих писем...')}
                     </span>
                     {!activeProcess.mailbox?.id.startsWith('proton:') && <span className="font-mono text-[10px] text-purple-300">
                       {activeProcess.emailWaitSeconds || 0}s / {settings.emailTimeoutSeconds}s
@@ -674,7 +687,7 @@ export const Popup: React.FC = () => {
                       }}
                     />
                   </div>}
-                  {!activeProcess.mailbox?.id.startsWith('proton:') && <p className="text-[10px] text-purple-400 leading-tight">Письмо автоматически опрашивается. Если сайт не отправляет письмо или вы тестируете:</p>}
+                  {!activeProcess.mailbox?.id.startsWith('proton:') && <p className="text-[10px] text-purple-400 leading-tight">{tr('Письмо автоматически опрашивается. Если сайт не отправляет письмо или вы тестируете:')}</p>}
                 </div>
 
                 <div className="space-y-1.5">
@@ -682,7 +695,7 @@ export const Popup: React.FC = () => {
                     onClick={handleSimulateEmail}
                     className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                   >
-                    <span>⚡ Смоделировать письмо (Тест)</span>
+                    <span>{tr('⚡ Смоделировать письмо (Тест)')}</span>
                   </button>}
 
                   <button
@@ -691,8 +704,8 @@ export const Popup: React.FC = () => {
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{activeProcess.emailBeforeSubmit
-                      ? (manualCode.trim() ? 'Вставить код и продолжить' : 'Я подтвердил по ссылке — продолжить')
-                      : (manualCode.trim() ? 'Вставить код и завершить' : 'Я подтвердил по ссылке — завершить')}</span>
+                      ? (manualCode.trim() ? tr('Вставить код и продолжить') : tr('Я подтвердил по ссылке — продолжить'))
+                      : (manualCode.trim() ? tr('Вставить код и завершить') : tr('Я подтвердил по ссылке — завершить'))}</span>
                   </button>
                 </div>
               </div>
@@ -703,14 +716,14 @@ export const Popup: React.FC = () => {
               <div className="space-y-2 pt-1">
                 <div className="p-2.5 bg-rose-950/50 border border-rose-800/70 rounded-xl text-rose-200 text-[11px] flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
-                  <span className="leading-relaxed">{activeProcess.lastError || 'Произошла ошибка при регистрации.'}</span>
+                  <span className="leading-relaxed">{activeProcess.lastError ? tr(activeProcess.lastError) : tr('Произошла ошибка при регистрации.')}</span>
                 </div>
                 <button
                   onClick={handleCancel}
                   className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  Попробовать снова
+                  {tr('Попробовать снова')}
                 </button>
               </div>
             )}
@@ -722,7 +735,7 @@ export const Popup: React.FC = () => {
                 className="w-full py-1 text-slate-400 hover:text-slate-200 text-xs flex items-center justify-center gap-1 transition-colors"
               >
                 <XCircle className="w-3.5 h-3.5" />
-                Отменить регистрацию
+                {tr('Отменить регистрацию')}
               </button>
             )}
           </div>
@@ -734,10 +747,10 @@ export const Popup: React.FC = () => {
             {/* Email Provider Selector */}
             <div className="p-3 bg-slate-800/40 border border-slate-800 rounded-xl space-y-1.5">
               <label className="text-[11px] font-medium text-slate-400 flex items-center justify-between">
-                <span>Почта для регистрации</span>
+                <span>{tr('Почта для регистрации')}</span>
                 {selectedProvider === 'auto' && (
                   <span className="text-[10px] text-indigo-400 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-800/40">
-                    Автовыбор
+                    {tr('Автовыбор')}
                   </span>
                 )}
               </label>
@@ -747,14 +760,14 @@ export const Popup: React.FC = () => {
                   onChange={(e) => setSelectedProvider(e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500"
                 >
-                  <option value="auto">Автовыбор временной почты</option>
+                  <option value="auto">{tr('Автовыбор временной почты')}</option>
                   {settings.ownMail?.address && <option value="own-mail">{settings.ownMail.service === 'proton' ? 'Proton Mail' : 'Gmail'}: {settings.ownMail.address}</option>}
-                  <option value="mail-tm">Mail.tm (Быстрый & надёжный)</option>
-                  <option value="mail-gw">Mail.gw (Зеркало Mail.tm)</option>
+                  <option value="mail-tm">{tr('Mail.tm (Быстрый & надёжный)')}</option>
+                  <option value="mail-gw">{tr('Mail.gw (Зеркало Mail.tm)')}</option>
                   <option value="dropmail">DropMail.me (GraphQL)</option>
-                  <option value="guerrilla">Guerrilla Mail (Классический)</option>
+                  <option value="guerrilla">{tr('Guerrilla Mail (Классический)')}</option>
                 </select>
-              {!settings.ownMail?.address && <button onClick={openOptions} className="text-[11px] text-indigo-300 hover:text-white">Настроить собственную почту →</button>}
+              {!settings.ownMail?.address && <button onClick={openOptions} className="text-[11px] text-indigo-300 hover:text-white">{tr('Настроить собственную почту →')}</button>}
             </div>
 
             {/* Main Action Button */}
@@ -768,7 +781,7 @@ export const Popup: React.FC = () => {
               ) : (
                 <RefreshCw className="w-4 h-4" />
               )}
-              <span>Зарегистрироваться в 1 клик</span>
+              <span>{tr('Зарегистрироваться в 1 клик')}</span>
             </button>
           </div>
         )}
@@ -781,7 +794,7 @@ export const Popup: React.FC = () => {
           onClick={openOptions}
           className="hover:text-slate-400 flex items-center gap-1 transition-colors"
         >
-          <span>Настройки</span>
+          <span>{tr('Настройки')}</span>
           <ExternalLink className="w-3 h-3" />
         </button>
       </div>
