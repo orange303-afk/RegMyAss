@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "RegMyAss",
+  "version": "1.0.0",
+  "description": "Автоматическая регистрация аккаунтов на сайтах с временной почтой и сохранением учетных данных.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": "icons/icon48.png",
+    "default_title": "RegMyAss"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ],
+      "exclude_matches": [
+        "https://*.paypal.com/*",
+        "https://*.stripe.com/*",
+        "https://*.bankofamerica.com/*",
+        "https://*.chase.com/*",
+        "https://*.wellsfargo.com/*",
+        "https://*.sberbank.ru/*",
+        "https://*.tbank.ru/*",
+        "https://*.vtb.ru/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage",
+    "alarms",
+    "notifications",
+    "contextMenus",
+    "identity",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://api.mail.tm/*",
+    "https://api.mail.gw/*",
+    "https://dropmail.me/*",
+    "https://api.guerrillamail.com/*",
+    "https://accounts.google.com/*",
+    "https://oauth2.googleapis.com/*",
+    "https://gmail.googleapis.com/*"
+  ]
+}

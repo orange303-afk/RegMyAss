@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>RegMyAss - Набор тестовых страниц</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 40px; }
+    h1 { font-size: 24px; margin-bottom: 8px; color: #818cf8; }
+    p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 18px; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
+    .card:hover { border-color: #6366f1; transform: translateY(-2px); }
+    .num { font-size: 11px; text-transform: uppercase; color: #818cf8; font-weight: bold; }
+    .title { font-size: 16px; font-weight: 600; margin: 6px 0; color: #ffffff; }
+    .desc { font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>RegMyAss — Тестовая лаборатория</h1>
+  <p>Выберите сценарий для проверки автоматического распознавания, заполнения, решения CAPTCHA и подтверждения:</p>
+
+  <div class="grid">
+    <a class="card" href="1-simple-form.html">
+      <div class="num">Тест 1</div>
+      <div class="title">Простая форма регистрации</div>
+      <div class="desc">Email + пароль + кнопка "Регистрация"</div>
+    </a>
+
+    <a class="card" href="2-confirm-password.html">
+      <div class="num">Тест 2</div>
+      <div class="title">Форма с подтверждением пароля</div>
+      <div class="desc">Email + пароль + повтор пароля + чекбокс правил</div>
+    </a>
+
+    <a class="card" href="3-react-form.html">
+      <div class="num">Тест 3</div>
+      <div class="title">React SPA форма</div>
+      <div class="desc">Управляемые React инпуты со state hook</div>
+    </a>
+
+    <a class="card" href="4-multi-step.html">
+      <div class="num">Тест 4</div>
+      <div class="title">Многошаговая регистрация</div>
+      <div class="desc">Шаг 1 (Email, Имя) -> Шаг 2 (Пароли)</div>
+    </a>
+
+    <a class="card" href="5-dynamic-fields.html">
+      <div class="num">Тест 5</div>
+      <div class="title">Форма с динамическими полями</div>
+      <div class="desc">Появление полей через MutationObserver / модалка</div>
+    </a>
+
+    <a class="card" href="6-captcha-form.html">
+      <div class="num">Тест 6</div>
+      <div class="title">Имитация CAPTCHA</div>
+      <div class="desc">Форма с интерактивной проверкой reCAPTCHA / Turnstile</div>
+    </a>
+
+    <a class="card" href="7-verify-link.html">
+      <div class="num">Тест 7</div>
+      <div class="title">Подтверждение по ссылке</div>
+      <div class="desc">Экран ожидания ссылки активации из письма</div>
+    </a>
+
+    <a class="card" href="8-verify-otp.html">
+      <div class="num">Тест 8</div>
+      <div class="title">Регистрация с OTP-кодом</div>
+      <div class="desc">Форма ввода 6-значного кода подтверждения</div>
+    </a>
+
+    <a class="card" href="9-existing-account.html">
+      <div class="num">Тест 9</div>
+      <div class="title">Сайт с существующим аккаунтом</div>
+      <div class="desc">Проверка предложения авторизации вместо повторной регистрации</div>
+    </a>
+
+    <a class="card" href="10-registration-errors.html">
+      <div class="num">Тест 10</div>
+      <div class="title">Сайт с ошибками регистрации</div>
+      <div class="desc">Обработка сообщений об ошибках сайта и отклоненном email</div>
+    </a>
+  </div>
+</body>
+</html>
