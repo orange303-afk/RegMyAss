@@ -2,6 +2,8 @@
 
 > A Chrome Manifest V3 extension that helps register accounts using temporary or personal email, detects registration forms, generates account details, handles email verification, and stores credentials.
 
+<img width="376" height="278" alt="image" src="https://github.com/user-attachments/assets/861b8cdb-bc18-4351-b448-4ff320c08d39" />
+
 ## Features
 
 - Detects registration forms, including dynamic forms and forms inside frames, and fills them with generated account details.
