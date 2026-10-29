@@ -8,9 +8,9 @@ import {
 } from '../../shared/types';
 import { DEFAULT_SETTINGS } from '../../shared/constants';
 import { translateError } from '../../shared/i18n';
+import { buildFailureReportUrl } from '../../shared/report';
 import { MessageParser } from '../../email/message-parser';
 import {
-  Shield,
   Settings as SettingsIcon,
   CheckCircle2,
   AlertTriangle,
@@ -369,9 +369,7 @@ export const Popup: React.FC = () => {
       {/* Top Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-indigo-600/30 text-indigo-400 rounded-lg">
-            <Shield className="w-5 h-5" />
-          </div>
+          <img src={chrome.runtime.getURL('icons/icon48.png')} alt="" className="w-8 h-8 object-contain" style={{ imageRendering: 'pixelated' }} />
           <div>
             <h1 className="text-sm font-semibold tracking-wide text-white">RegMyAss</h1>
             <p className="text-[11px] text-slate-400 truncate max-w-[170px]" title={currentOrigin}>
@@ -718,6 +716,14 @@ export const Popup: React.FC = () => {
                   <span className="leading-relaxed">{activeProcess.lastError ? tr(activeProcess.lastError) : tr('Произошла ошибка при регистрации.')}</span>
                 </div>
                 <button
+                  onClick={() => chrome.tabs.create({ url: buildFailureReportUrl(activeProcess, chrome.runtime.getManifest().version) })}
+                  className="w-full py-1.5 bg-indigo-900/70 hover:bg-indigo-800 text-indigo-100 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  {tr('Сообщить о проблеме')}
+                </button>
+                <p className="text-[10px] text-slate-400 leading-relaxed">{tr('Откроется черновик GitHub. Проверьте его перед отправкой; адрес почты, пароль и код не добавляются автоматически.')}</p>
+                <button
                   onClick={handleCancel}
                   className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
@@ -790,7 +796,7 @@ export const Popup: React.FC = () => {
 
       {/* Footer Info */}
       <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-        <span>RegMyAss v1.1.0</span>
+        <span>RegMyAss v{chrome.runtime.getManifest().version}</span>
         <button
           onClick={openOptions}
           className="hover:text-slate-400 flex items-center gap-1 transition-colors"

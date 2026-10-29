@@ -11,6 +11,7 @@
 - Pauses for manual CAPTCHA completion and asks before submitting forms when configured.
 - Can save account details with Chrome Password Manager or an encrypted local vault.
 - Offers English, Spanish and Russian interface languages in **Settings → Language**. New installations default to English.
+- On registration failure, **Report a problem** opens a prefilled GitHub issue draft with the site hostname, failure stage, error code, provider and extension version. Review and submit it yourself; credentials, email addresses and confirmation codes are excluded.
 
 ## Build and install
 
@@ -49,6 +50,7 @@ In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load 
 - **6 почтовых провайдеров:** Mail.tm, Mail.gw, DropMail.me, Guerrilla Mail, smails, Maildrop.
 - **Собственная почта:** Введите любой адрес и проверяйте входящие вручную. Расширение не получает доступ к ящику.
 - **Отдельный ящик для регистраций:** Рекомендуется использовать отдельный адрес вместо основной почты.
+- **Сообщение о проблеме:** При неудачной регистрации кнопка **Report** открывает черновик GitHub Issue. В нём указаны домен сайта, этап, код ошибки, сервис почты и версия расширения. Перед отправкой можно добавить описание; адрес почты, пароль и код подтверждения не включаются.
 - **Отказоустойчивость и автовыбор (Failover):** Если у выбранного провайдера исчерпана квота или недоступен API, расширение автоматически переключается на резервный сервис.
 - **Умное подтверждение email:**
   - Извлечение verification link (ссылки активации) без выполнения небезопасного JavaScript.

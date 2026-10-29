@@ -10,7 +10,6 @@ import { AddressGenerator } from '../../accounts/address-generator';
 import {
   Mail,
   Sliders,
-  Shield,
   History,
   Activity,
   Check,
@@ -159,9 +158,7 @@ export const Options: React.FC = () => {
       <header className="border-b border-slate-800 bg-slate-900/60 sticky top-0 z-10 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-600/30 text-indigo-400 rounded-xl">
-              <Shield className="w-6 h-6" />
-            </div>
+            <img src={chrome.runtime.getURL('icons/icon48.png')} alt="" className="w-10 h-10 object-contain" style={{ imageRendering: 'pixelated' }} />
             <div>
               <h1 className="text-lg font-bold text-white tracking-tight">{tr('RegMyAss Настройки')}</h1>
               <p className="text-xs text-slate-400">{tr('Управление провайдерами, безопасностью и профилем данных')}</p>
@@ -239,7 +236,7 @@ export const Options: React.FC = () => {
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <Shield className="w-4 h-4" />
+            <Lock className="w-4 h-4" />
             <span>{tr('Безопасность')}</span>
           </button>
 

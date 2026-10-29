@@ -162,6 +162,8 @@ export interface ActiveProcess {
   updatedAt: number;
   retryCount: number;
   lastError?: string;
+  lastErrorCode?: string;
+  failedAtState?: RegistrationState;
   accountData?: GeneratedAccountData;
   mailbox?: Mailbox;
   detectedForm?: DetectedForm;

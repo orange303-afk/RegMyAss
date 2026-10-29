@@ -7,16 +7,6 @@ OUT = Path(__file__).resolve().parents[1] / "public" / "icons"
 SIZE = 32
 
 icon = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
-draw = ImageDraw.Draw(icon)
-
-# Pixel-cut corners keep the badge crisp at Chrome toolbar sizes.
-badge = [(5, 0), (26, 0), (26, 1), (29, 1), (29, 3), (31, 3),
-         (31, 28), (29, 28), (29, 30), (26, 30), (26, 31),
-         (5, 31), (5, 30), (2, 30), (2, 28), (0, 28),
-         (0, 3), (2, 3), (2, 1), (5, 1)]
-draw.polygon(badge, fill="#4f46e5")
-draw.rectangle((2, 4, 3, 27), fill="#6366f1")
-draw.rectangle((4, 2, 27, 3), fill="#6366f1")
 
 # Upright middle finger, folded surrounding fingers, palm and thumb.
 hand = Image.new("L", (SIZE, SIZE), 0)

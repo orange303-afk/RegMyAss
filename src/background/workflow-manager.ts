@@ -467,7 +467,11 @@ export class WorkflowManager {
     console.error('Workflow error:', err);
 
     if (this.activeProcess) {
-      await this.updateState('failed', { lastError: message });
+      await this.updateState('failed', {
+        lastError: message,
+        lastErrorCode: err instanceof QuickPassError ? err.code : 'UNKNOWN_ERROR',
+        failedAtState: this.activeProcess.state,
+      });
     }
   }
 }

@@ -4,6 +4,8 @@ export const isLocale = (value: unknown): value is Locale => value === 'en' || v
 
 // Keys mirror the original interface copy so translated UI can be audited for omissions.
 const messages: Record<string, [string, string]> = {
+  'Сообщить о проблеме': ['Report a problem', 'Informar de un problema'],
+  'Откроется черновик GitHub. Проверьте его перед отправкой; адрес почты, пароль и код не добавляются автоматически.': ['A GitHub issue draft will open. Review it before submitting; your email address, password and code are not added automatically.', 'Se abrirá un borrador de incidencia en GitHub. Revísalo antes de enviarlo; tu correo, contraseña y código no se añaden automáticamente.'],
   'Провайдер не найден': ['Provider not found', 'Proveedor no encontrado'],
   'Сервер недоступен или вернул ошибку': ['Server unavailable or returned an error', 'El servidor no está disponible o devolvió un error'],
   'Ошибка обработки запроса': ['Could not process the request', 'No se pudo procesar la solicitud'],
