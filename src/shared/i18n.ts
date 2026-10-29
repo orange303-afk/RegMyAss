@@ -1,6 +1,6 @@
-export type Locale = 'en' | 'es';
+export type Locale = 'en' | 'es' | 'ru';
 
-export const isLocale = (value: unknown): value is Locale => value === 'en' || value === 'es';
+export const isLocale = (value: unknown): value is Locale => value === 'en' || value === 'es' || value === 'ru';
 
 // Keys mirror the original interface copy so translated UI can be audited for omissions.
 const messages: Record<string, [string, string]> = {
@@ -194,11 +194,17 @@ const messages: Record<string, [string, string]> = {
 };
 
 export function t(locale: Locale | undefined, key: string): string {
+  if (locale === 'ru') {
+    if (key === 'Connected mailbox') return 'Подключён ящик';
+    if (key === 'Mailbox created:') return 'Успешно создан ящик:';
+    return key;
+  }
   const translated = messages[key];
   return translated ? translated[locale === 'es' ? 1 : 0] : key;
 }
 
 export function translateError(locale: Locale | undefined, message: string): string {
+  if (locale === 'ru') return t(locale, message);
   const timeout = /^Письмо подтверждения не получено за (\d+) сек\. Вы можете запросить повторную отправку на сайте\.$/.exec(message);
   if (timeout) return locale === 'es'
     ? `No llegó el correo de confirmación en ${timeout[1]} segundos. Puedes solicitar que lo reenvíen desde el sitio.`

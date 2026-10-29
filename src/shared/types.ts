@@ -172,7 +172,7 @@ export interface ActiveProcess {
 }
 
 export interface UserSettings {
-  locale: 'en' | 'es';
+  locale: 'en' | 'es' | 'ru';
   ownMail?: {
     service: 'gmail' | 'proton';
     address: string;

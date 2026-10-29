@@ -203,15 +203,16 @@ export const Options: React.FC = () => {
           </div>
 
           <label className="flex items-center gap-2 text-xs text-slate-300">
-            <span>{settings.locale === 'es' ? 'Idioma' : 'Language'}</span>
+            <span>{settings.locale === 'es' ? 'Idioma' : settings.locale === 'ru' ? 'Язык' : 'Language'}</span>
             <select
-              aria-label={settings.locale === 'es' ? 'Idioma de la interfaz' : 'Interface language'}
+              aria-label={settings.locale === 'es' ? 'Idioma de la interfaz' : settings.locale === 'ru' ? 'Язык интерфейса' : 'Interface language'}
               value={settings.locale}
               onChange={(event) => saveSettings({ locale: event.target.value as UserSettings['locale'] })}
               className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-100"
             >
               <option value="en">English</option>
               <option value="es">Español</option>
+              <option value="ru">Русский</option>
             </select>
           </label>
 
@@ -912,7 +913,7 @@ export const Options: React.FC = () => {
                         </div>
                         <p className="text-[11px] font-mono text-slate-400">{acc.email}</p>
                         <p className="text-[10px] text-slate-500">
-                          {tr('Создан:')} {new Date(acc.createdAt).toLocaleDateString(settings.locale === 'es' ? 'es-ES' : 'en-US')}
+                          {tr('Создан:')} {new Date(acc.createdAt).toLocaleDateString(settings.locale === 'es' ? 'es-ES' : settings.locale === 'ru' ? 'ru-RU' : 'en-US')}
                         </p>
                       </div>
 
@@ -970,7 +971,7 @@ export const Options: React.FC = () => {
                   logs.map((log) => (
                     <div key={log.id} className="flex items-start gap-2 border-b border-slate-900 pb-1.5 last:border-none">
                       <span className="text-slate-500 shrink-0">
-                        {new Date(log.timestamp).toLocaleTimeString()}
+                        {new Date(log.timestamp).toLocaleTimeString(settings.locale === 'es' ? 'es-ES' : settings.locale === 'ru' ? 'ru-RU' : 'en-US')}
                       </span>
                       <span
                         className={`font-semibold shrink-0 uppercase text-[10px] px-1 rounded ${

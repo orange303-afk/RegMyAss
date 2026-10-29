@@ -9,7 +9,7 @@
 - Finds verification links and one-time codes in email; a confirmation link can be opened directly from the extension.
 - Pauses for manual CAPTCHA completion and asks before submitting forms when configured.
 - Can save account details with Chrome Password Manager or an encrypted local vault.
-- Offers English and Spanish interface languages in **Settings → Language**. New installations default to English.
+- Offers English, Spanish and Russian interface languages in **Settings → Language**. New installations default to English.
 
 ## Build and install
 
@@ -22,6 +22,8 @@ npm run build
 In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the generated `dist` folder. For Gmail OAuth setup, see [OAUTH_SETUP.md](OAUTH_SETUP.md). The local OAuth configuration and built files are excluded from Git.
 
 ## Русский
+
+Язык интерфейса можно выбрать в настройках: английский, испанский или русский. При новой установке по умолчанию используется английский.
 
 > Расширение для Google Chrome (Manifest V3), автоматизирующее процесс создания учетных записей на веб-сайтах при помощи временной электронной почты, умного анализа форм, генератора валидных адресов и ZIP-кодов, координации CAPTCHA и безопасного сохранения паролей.
 

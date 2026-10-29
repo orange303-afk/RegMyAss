@@ -609,7 +609,7 @@ export const Popup: React.FC = () => {
                         >
                           <div className="flex items-center justify-between text-[10px] text-slate-400">
                             <span className="truncate max-w-[130px] font-semibold text-slate-300">{msg.from}</span>
-                            <span>{new Date(msg.receivedAt).toLocaleTimeString()}</span>
+                            <span>{new Date(msg.receivedAt).toLocaleTimeString(settings.locale === 'es' ? 'es-ES' : settings.locale === 'ru' ? 'ru-RU' : 'en-US')}</span>
                           </div>
                           <p className="font-medium text-white truncate text-[11px]">{msg.subject}</p>
                           {msg.text && <p className="text-slate-400 line-clamp-2 text-[10px]">{msg.text}</p>}
@@ -789,7 +789,7 @@ export const Popup: React.FC = () => {
 
       {/* Footer Info */}
       <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-        <span>RegMyAss v1.0.0</span>
+        <span>RegMyAss v1.1.0</span>
         <button
           onClick={openOptions}
           className="hover:text-slate-400 flex items-center gap-1 transition-colors"
