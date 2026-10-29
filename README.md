@@ -5,8 +5,8 @@
 ## Features
 
 - Detects registration forms, including dynamic forms and forms inside frames, and fills them with generated account details.
-- Supports Mail.tm, Mail.gw, DropMail.me and Guerrilla Mail, plus Gmail through OAuth and Proton Mail with manual confirmation.
-- Use a separate mailbox for registrations. Do not connect your primary inbox; Gmail OAuth grants the extension read access to messages in the selected account.
+- Supports Mail.tm, Mail.gw, DropMail.me, Guerrilla Mail, smails and Maildrop. You can also enter your own email address and check it manually.
+- Use a separate mailbox for registrations. The extension does not request access to your personal inbox.
 - Finds verification links and one-time codes in email; a confirmation link can be opened directly from the extension.
 - Pauses for manual CAPTCHA completion and asks before submitting forms when configured.
 - Can save account details with Chrome Password Manager or an encrypted local vault.
@@ -20,7 +20,7 @@ npm test
 npm run build
 ```
 
-In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the generated `dist` folder. For Gmail OAuth setup, see [OAUTH_SETUP.md](OAUTH_SETUP.md). The local OAuth configuration and built files are excluded from Git.
+In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the generated `dist` folder. Built files are excluded from Git.
 
 ## Русский
 
@@ -46,9 +46,9 @@ In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load 
 
 - **1-Click регистрация:** Расширение обнаруживает форму, генерирует криптостойкий пароль и уникальный логин, запрашивает временный почтовый ящик и заполняет поля.
 - **Поддержка современных SPA и фреймворков:** Работает с React, Vue, Angular, Svelte, динамическими модальными окнами и Shadow DOM благодаря прямому вызову нативных дескрипторов прототипа и генерации событий `input`, `change`, `blur`.
-- **4 проверенных почтовых провайдера "из коробки":** Mail.tm, Mail.gw, DropMail.me, Guerrilla Mail.
-- **Собственная почта:** Gmail с автоматическим чтением через OAuth и Proton Mail с ручным подтверждением в браузере. Настройка Gmail описана в [OAUTH_SETUP.md](OAUTH_SETUP.md).
-- **Отдельный ящик для регистраций:** Не подключайте основную почту. Доступ Gmail через OAuth позволяет расширению читать письма выбранного аккаунта.
+- **6 почтовых провайдеров:** Mail.tm, Mail.gw, DropMail.me, Guerrilla Mail, smails, Maildrop.
+- **Собственная почта:** Введите любой адрес и проверяйте входящие вручную. Расширение не получает доступ к ящику.
+- **Отдельный ящик для регистраций:** Рекомендуется использовать отдельный адрес вместо основной почты.
 - **Отказоустойчивость и автовыбор (Failover):** Если у выбранного провайдера исчерпана квота или недоступен API, расширение автоматически переключается на резервный сервис.
 - **Умное подтверждение email:**
   - Извлечение verification link (ссылки активации) без выполнения небезопасного JavaScript.
@@ -154,6 +154,8 @@ npm run build
 | **Mail.gw** | REST / JSON | Нет (публичный) | Независимые домены | Зеркало Mail.tm с отдельным пулом адресов. Отличный резервный вариант. |
 | **DropMail.me** | GraphQL | Нет | Разнообразные домены | Мгновенное создание сессии через GraphQL мутацию `introduceSession`. Высокая скорость доставки. |
 | **Guerrilla Mail** | REST / JSON | Нет | `sharklasers.com` и др. | Классический сервис временной почты. Поддерживает опрос через `check_email` с `sid_token`. |
+| **smails** | REST / JSON | Нет | `smails.dev` | Ящик создаётся через API, письма читаются по токену. |
+| **Maildrop** | GraphQL | Нет | `maildrop.cc` | Публичный ящик. Новые отправители могут задерживаться из-за greylisting. |
 
 ---
 

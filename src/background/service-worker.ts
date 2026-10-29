@@ -11,19 +11,17 @@ import { AppDatabase } from '../storage/database';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../shared/constants';
 import { ExtensionMessage } from '../shared/messages';
 import { UserSettings } from '../shared/types';
-import { OwnMailProvider } from '../email/own-mail';
 
 // Instantiate singletons
 const database = new AppDatabase();
 const providerManager = new ProviderManager();
-const ownMailProvider = providerManager.getProvider('own-mail') as OwnMailProvider;
 const verificationManager = new VerificationManager();
 const accountManager = new AccountManager(database);
 const workflowManager = new WorkflowManager(providerManager, verificationManager, accountManager);
 
 // Restore state on worker initialization
 const stateReady = workflowManager.restoreState().catch(console.error);
-chrome.storage.local.remove('regmyass_oauth_outlook').catch(console.error);
+chrome.storage.local.remove(['regmyass_oauth_outlook', 'regmyass_oauth_gmail']).catch(console.error);
 const MENU_ID = 'regmyass-open-window';
 const WINDOW_WIDTH = 390;
 const WINDOW_HEIGHT = 560;
@@ -120,9 +118,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 async function getStoredSettings(): Promise<UserSettings> {
   const result = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
   const settings = { ...DEFAULT_SETTINGS, ...(result[STORAGE_KEYS.SETTINGS] || {}) } as UserSettings;
-  if (!settings.ownMail || !['gmail', 'proton'].includes(settings.ownMail.service)) {
-    settings.ownMail = { service: 'gmail', address: '' };
-  }
+  settings.ownMail = { address: settings.ownMail?.address || '' };
   return settings;
 }
 
@@ -309,49 +305,6 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       case 'UPDATE_SETTINGS_REQUEST': {
         await saveStoredSettings(message.payload);
         sendResponse({ type: 'UPDATE_SETTINGS_RESPONSE', payload: { success: true } });
-        break;
-      }
-
-      case 'CONNECT_OWN_MAIL': {
-        const address = await ownMailProvider.connect();
-        await saveStoredSettings({
-          ownMail: { service: message.payload.service, address },
-        });
-        sendResponse({ success: true, payload: { address } });
-        break;
-      }
-
-      case 'GET_OAUTH_CONFIG': {
-        const configured = Boolean(chrome.runtime.getManifest().oauth2?.client_id);
-        sendResponse({ success: true, payload: { gmail: configured } });
-        break;
-      }
-
-      case 'DISCONNECT_OWN_MAIL': {
-        await ownMailProvider.disconnect();
-        const settings = await getStoredSettings();
-        if (settings.ownMail?.service === message.payload.service) {
-          await saveStoredSettings({ ownMail: { ...settings.ownMail, address: '' } });
-        }
-        sendResponse({ success: true });
-        break;
-      }
-
-      case 'GET_OWN_MAIL_CONNECTION': {
-        const address = await ownMailProvider.getConnectedAddress();
-        sendResponse({ success: true, payload: { address } });
-        break;
-      }
-
-      case 'GET_ACCOUNTS_REQUEST': {
-        const accounts = await accountManager.getAllAccounts();
-        sendResponse({ type: 'GET_ACCOUNTS_RESPONSE', payload: accounts });
-        break;
-      }
-
-      case 'DELETE_ACCOUNT_REQUEST': {
-        await accountManager.deleteAccount(message.payload.id);
-        sendResponse({ type: 'DELETE_ACCOUNT_RESPONSE', payload: { success: true } });
         break;
       }
 

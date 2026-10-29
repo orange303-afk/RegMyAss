@@ -24,17 +24,6 @@ function copyStatic() {
   }
   const manifestPath = resolve(distDir, 'manifest.json');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const localConfigPath = resolve(rootDir, 'oauth-clients.local.json');
-  const localConfig = fs.existsSync(localConfigPath)
-    ? JSON.parse(fs.readFileSync(localConfigPath, 'utf8'))
-    : {};
-  const googleClientId = process.env.REGMYASS_GOOGLE_CLIENT_ID?.trim() || localConfig.googleClientId || '';
-  if (googleClientId) {
-    manifest.oauth2 = {
-      client_id: googleClientId,
-      scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-    };
-  }
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 }
 

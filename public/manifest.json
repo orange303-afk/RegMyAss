@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "RegMyAss",
-  "version": "1.1.0",
-  "description": "Register accounts with temporary or personal email and save credentials.",
+  "version": "1.2.0",
+  "description": "Register accounts with temporary email or a manually checked address and save credentials.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -50,7 +50,6 @@
     "alarms",
     "notifications",
     "contextMenus",
-    "identity",
     "webNavigation"
   ],
   "host_permissions": [
@@ -58,8 +57,7 @@
     "https://api.mail.gw/*",
     "https://dropmail.me/*",
     "https://api.guerrillamail.com/*",
-    "https://accounts.google.com/*",
-    "https://oauth2.googleapis.com/*",
-    "https://gmail.googleapis.com/*"
+    "https://smails.dev/*",
+    "https://api.maildrop.cc/*"
   ]
 }

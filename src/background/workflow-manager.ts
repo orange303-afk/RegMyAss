@@ -329,7 +329,7 @@ export class WorkflowManager {
 
     await this.updateState('awaiting_email');
 
-    if (settings.ownMail?.service === 'proton' && this.activeProcess.mailbox.id.startsWith('proton:')) {
+    if (this.activeProcess.mailbox.id.startsWith('manual:')) {
       return;
     }
 

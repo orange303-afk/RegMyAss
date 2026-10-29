@@ -80,10 +80,6 @@ export type ExtensionMessage =
   | { type: 'DELETE_ACCOUNT_REQUEST'; payload: { id: string } }
   | { type: 'DELETE_ACCOUNT_RESPONSE'; payload: { success: boolean } }
   | { type: 'TEST_PROVIDER_REQUEST'; payload: { providerId: string } }
-  | { type: 'CONNECT_OWN_MAIL'; payload: { service: 'gmail' } }
-  | { type: 'GET_OAUTH_CONFIG' }
-  | { type: 'DISCONNECT_OWN_MAIL'; payload: { service: 'gmail' } }
-  | { type: 'GET_OWN_MAIL_CONNECTION'; payload: { service: 'gmail' } }
   | {
       type: 'TEST_PROVIDER_RESPONSE';
       payload: { success: boolean; mailboxAddress?: string; error?: string };

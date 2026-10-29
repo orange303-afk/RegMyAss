@@ -8,6 +8,8 @@ import { MailGwProvider } from './providers/mail-gw';
 import { DropMailProvider } from './providers/dropmail';
 import { GuerrillaMailProvider } from './providers/guerrilla';
 import { OwnMailProvider } from './own-mail';
+import { SmailsProvider } from './providers/smails';
+import { MaildropProvider } from './providers/maildrop';
 import { Mailbox, UserSettings } from '../shared/types';
 import { createError } from '../shared/errors';
 
@@ -22,6 +24,8 @@ export class ProviderManager {
     this.registerProvider(new DropMailProvider());
     this.registerProvider(new GuerrillaMailProvider());
     this.registerProvider(new OwnMailProvider());
+    this.registerProvider(new SmailsProvider());
+    this.registerProvider(new MaildropProvider());
   }
 
   public registerProvider(provider: EmailProvider): void {
@@ -90,7 +94,7 @@ export class ProviderManager {
     provider: EmailProvider;
   }> {
     const attemptedIds: string[] = [];
-    const maxAttempts = Math.min(settings.enabledProviders.length, 3);
+    const maxAttempts = settings.enabledProviders.length;
 
     while (attemptedIds.length < maxAttempts) {
       const provider = await this.selectProvider(settings, attemptedIds);

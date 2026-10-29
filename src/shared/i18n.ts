@@ -17,19 +17,19 @@ const messages: Record<string, [string, string]> = {
   'Пожалуйста, решите капчу на открытой вкладке для продолжения регистрации.': ['Solve the CAPTCHA in the open tab to continue registration.', 'Resuelve el CAPTCHA en la pestaña abierta para continuar el registro.'],
   'RegMyAss: Регистрация завершена!': ['RegMyAss: Registration complete!', 'RegMyAss: ¡Registro completado!'],
   'Настройте собственную почту в параметрах расширения.': ['Set up personal email in the extension settings.', 'Configura el correo personal en la extensión.'],
-  'В этой сборке не настроен Google OAuth. Добавьте Client ID при сборке расширения.': ['Google OAuth is not configured in this build. Add a Client ID when building the extension.', 'Google OAuth no está configurado en esta compilación. Añade un ID de cliente al compilar la extensión.'],
   'Google не выдал токен доступа.': ['Google did not provide an access token.', 'Google no proporcionó un token de acceso.'],
-  'Не удалось определить адрес Gmail.': ['Could not determine the Gmail address.', 'No se pudo determinar la dirección de Gmail.'],
-  'Gmail не подключён. Авторизуйте ящик в настройках.': ['Gmail is not connected. Sign in through Settings.', 'Gmail no está conectado. Inicia sesión desde Configuración.'],
-  'Доступ к Gmail истёк. Подключите ящик снова в настройках.': ['Gmail access expired. Reconnect the mailbox in Settings.', 'El acceso a Gmail caducó. Vuelve a conectar el buzón en Configuración.'],
   'Выберите почтовый сервис в настройках.': ['Select an email provider in Settings.', 'Selecciona un proveedor de correo en Configuración.'],
-  'Укажите действительный адрес Proton Mail в настройках.': ['Enter a valid Proton Mail address in Settings.', 'Introduce una dirección válida de Proton Mail en Configuración.'],
-  'Подключите выбранный Gmail через OAuth в настройках.': ['Connect the selected Gmail account through OAuth in Settings.', 'Conecta la cuenta de Gmail seleccionada mediante OAuth en Configuración.'],
-  'Откройте Proton Mail в браузере и проверьте письмо вручную.': ['Open Proton Mail in your browser and check the message manually.', 'Abre Proton Mail en el navegador y revisa el mensaje manualmente.'],
-  'Письма Proton Mail открываются в браузере.': ['Proton Mail messages open in the browser.', 'Los mensajes de Proton Mail se abren en el navegador.'],
+  'Укажите адрес для регистрации. Проверяйте письма самостоятельно в своей почте; расширение не запрашивает доступ к ящику.': ['Enter an address for registration. Check messages in your own inbox; the extension does not request mailbox access.', 'Introduce una dirección para registrarte. Revisa los mensajes en tu propio buzón; la extensión no solicita acceso al correo.'],
+  'Для регистраций лучше использовать отдельный ящик, а не основную почту.': ['Use a separate mailbox for registrations instead of your primary email.', 'Usa un buzón separado para los registros en lugar de tu correo principal.'],
+  'Адрес почты': ['Email address', 'Dirección de correo'],
+  'Выберите временную почту или укажите адрес для ручной проверки.': ['Choose temporary email or enter an address to check manually.', 'Elige un correo temporal o introduce una dirección para revisarla manualmente.'],
+  'Проверьте свою почту, скопируйте код или перейдите по ссылке подтверждения.': ['Check your inbox, copy the code or follow the confirmation link.', 'Revisa tu buzón, copia el código o sigue el enlace de confirmación.'],
+  'Одноразовый ящик с API и токеном доступа.': ['Disposable mailbox with API and access token.', 'Buzón desechable con API y token de acceso.'],
+  'Публичный ящик с GraphQL API; письма могут задерживаться.': ['Public mailbox with GraphQL API; messages may be delayed.', 'Buzón público con API GraphQL; los mensajes pueden retrasarse.'],
+  'Укажите свой адрес почты в настройках.': ['Enter your email address in Settings.', 'Introduce tu dirección de correo en Configuración.'],
+  'Укажите действительный адрес почты в настройках.': ['Enter a valid email address in Settings.', 'Introduce una dirección de correo válida en Configuración.'],
+  'Проверьте письмо в своей почте вручную.': ['Check the message in your inbox manually.', 'Revisa el mensaje en tu buzón manualmente.'],
   'Собственная почта': ['Personal email', 'Correo personal'],
-  'Для регистраций используйте отдельный почтовый ящик, а не основную почту. При подключении Gmail RegMyAss получает доступ на чтение писем выбранного аккаунта.': ['Use a separate mailbox for registrations, not your primary email. Connecting Gmail gives RegMyAss read access to messages in the selected account.', 'Usa un buzón separado para los registros, no tu correo principal. Al conectar Gmail, RegMyAss obtiene acceso de lectura a los mensajes de la cuenta elegida.'],
-  'Connected mailbox': ['Connected mailbox', 'Buzón conectado'],
   'Mailbox created:': ['Mailbox created:', 'Buzón creado:'],
   'Настройки': ['Settings', 'Configuración'],
   'Регистрация': ['Registration', 'Registro'],
@@ -41,16 +41,6 @@ const messages: Record<string, [string, string]> = {
   'RegMyAss Настройки': ['RegMyAss Settings', 'Configuración de RegMyAss'],
   'Управление провайдерами, безопасностью и профилем данных': ['Manage email providers, security and profile data', 'Gestiona los proveedores de correo, la seguridad y los datos del perfil'],
   'Настройки сохранены': ['Settings saved', 'Configuración guardada'],
-  'Подключите личный ящик через OAuth или настройте временную почту.': ['Connect a personal mailbox with OAuth or configure temporary email.', 'Conecta un buzón personal con OAuth o configura un correo temporal.'],
-  'Gmail проверяется автоматически после входа через Google. Для Proton Mail письмо открывается в браузере, а код вводится вручную.': ['Gmail is checked automatically after signing in with Google. For Proton Mail, open the message in your browser and enter the code manually.', 'Gmail se revisa automáticamente tras iniciar sesión con Google. Para Proton Mail, abre el mensaje en el navegador e introduce el código manualmente.'],
-  'Адрес Proton Mail': ['Proton Mail address', 'Dirección de Proton Mail'],
-  'имя@proton.me': ['name@proton.me', 'nombre@proton.me'],
-  'Открыть Proton Mail в браузере': ['Open Proton Mail in browser', 'Abrir Proton Mail en el navegador'],
-  'Войдите в Proton Mail на его сайте. Расширение использует этот адрес при регистрации, но не получает доступ к письмам.': ['Sign in to Proton Mail on its website. The extension uses this address for registration but cannot read its messages.', 'Inicia sesión en el sitio de Proton Mail. La extensión usa esta dirección para registrarte, pero no puede leer los mensajes.'],
-  'В этой сборке не настроен Google OAuth. Инструкция — в OAUTH_SETUP.md.': ['Google OAuth is not configured in this build. See OAUTH_SETUP.md.', 'Google OAuth no está configurado en esta compilación. Consulta OAUTH_SETUP.md.'],
-  'Подключено:': ['Connected:', 'Conectado:'],
-  'Вход...': ['Signing in...', 'Iniciando sesión...'],
-  'Войти через Google': ['Sign in with Google', 'Iniciar sesión con Google'],
   'Отключить': ['Disconnect', 'Desconectar'],
   'Автоматический выбор сервиса': ['Automatic provider selection', 'Selección automática del servicio'],
   'Автоматически подбирать лучший доступный сервис с учетом лимитов и частоты успешных подтверждений': ['Automatically choose the best available provider based on limits and successful verifications', 'Elegir automáticamente el mejor servicio disponible según los límites y las verificaciones correctas'],
@@ -115,11 +105,8 @@ const messages: Record<string, [string, string]> = {
   'Очистить': ['Clear', 'Borrar'],
   'Журнал пуст': ['Log is empty', 'El registro está vacío'],
   'Вы уверены, что хотите удалить эту запись?': ['Are you sure you want to delete this entry?', '¿Seguro que quieres eliminar esta entrada?'],
-  'Не удалось подключить почту.': ['Could not connect the mailbox.', 'No se pudo conectar el buzón.'],
-  'Ошибка авторизации.': ['Sign-in failed.', 'Error de inicio de sesión.'],
   'Ошибка проверки API': ['API test failed', 'Falló la prueba de la API'],
   'Ошибка запроса': ['Request failed', 'Falló la solicitud'],
-  'Почта отключена.': ['Mailbox disconnected.', 'Buzón desconectado.'],
   'Пароль должен содержать минимум 8 символов': ['Password must contain at least 8 characters', 'La contraseña debe tener al menos 8 caracteres'],
   'Хранилище разблокировано': ['Vault unlocked', 'Bóveda desbloqueada'],
   '🇺🇸 United States (США - ZIP: 90210, 10001, 60601)': ['🇺🇸 United States (ZIP: 90210, 10001, 60601)', '🇺🇸 Estados Unidos (ZIP: 90210, 10001, 60601)'],
@@ -170,8 +157,6 @@ const messages: Record<string, [string, string]> = {
   'Отправить регистрационную форму': ['Submit registration form', 'Enviar formulario de registro'],
   'Обнаружена капча. Пожалуйста, решите её во вкладке сайта.': ['CAPTCHA detected. Please solve it in the site tab.', 'Se detectó un CAPTCHA. Resuélvelo en la pestaña del sitio.'],
   'Я прошёл проверку — продолжить': ['I completed the check — continue', 'He completado la verificación — continuar'],
-  'Откройте Proton Mail, найдите письмо подтверждения и скопируйте код или перейдите по ссылке.': ['Open Proton Mail, find the confirmation message and copy the code or follow its link.', 'Abre Proton Mail, busca el mensaje de confirmación y copia el código o sigue el enlace.'],
-  'Открыть Proton Mail': ['Open Proton Mail', 'Abrir Proton Mail'],
   'Код из письма, если есть': ['Code from email, if available', 'Código del correo, si lo hay'],
   'Ожидание ручного подтверждения': ['Waiting for manual confirmation', 'Esperando confirmación manual'],
   'Опрос входящих писем...': ['Checking inbox...', 'Consultando la bandeja de entrada...'],
@@ -210,11 +195,5 @@ export function translateError(locale: Locale | undefined, message: string): str
   if (timeout) return locale === 'es'
     ? `No llegó el correo de confirmación en ${timeout[1]} segundos. Puedes solicitar que lo reenvíen desde el sitio.`
     : `No confirmation email arrived within ${timeout[1]} seconds. You can request a resend on the site.`;
-  const gmail = /^Ошибка Gmail API \((\d+)\)\. Переподключите ящик в настройках\.$/.exec(message);
-  if (gmail) return locale === 'es'
-    ? `Error de la API de Gmail (${gmail[1]}). Vuelve a conectar el buzón en Configuración.`
-    : `Gmail API error (${gmail[1]}). Reconnect the mailbox in Settings.`;
-  const signIn = /^Не удалось войти в Gmail: (.*)$/.exec(message);
-  if (signIn) return locale === 'es' ? `No se pudo iniciar sesión en Gmail: ${signIn[1]}` : `Could not sign in to Gmail: ${signIn[1]}`;
   return t(locale, message);
 }

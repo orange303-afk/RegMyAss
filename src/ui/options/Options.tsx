@@ -35,10 +35,6 @@ export const Options: React.FC = () => {
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ id: string; success: boolean; msg: string } | null>(null);
-  const [ownMailBusy, setOwnMailBusy] = useState(false);
-  const [ownMailMessage, setOwnMailMessage] = useState('');
-  const [oauthConfigured, setOauthConfigured] = useState(false);
-
   // Vault master password input
   const [masterPassword, setMasterPassword] = useState<string>('');
   const [vaultUnlocked, setVaultUnlocked] = useState<boolean>(false);
@@ -48,9 +44,6 @@ export const Options: React.FC = () => {
     loadSettings();
     loadAccounts();
     loadLogs();
-    chrome.runtime.sendMessage({ type: 'GET_OAUTH_CONFIG' }).then((response) => {
-      if (response?.success) setOauthConfigured(Boolean(response.payload.gmail));
-    }).catch(() => {});
   }, []);
 
   const loadSettings = async () => {
@@ -99,33 +92,6 @@ export const Options: React.FC = () => {
     } catch (e) {
       console.error('Failed to save settings:', e);
     }
-  };
-
-  const connectOwnMail = async () => {
-    const ownMail = settings.ownMail;
-    if (!ownMail) return;
-    setOwnMailBusy(true);
-    setOwnMailMessage('');
-    try {
-      const response = await chrome.runtime.sendMessage({
-        type: 'CONNECT_OWN_MAIL',
-        payload: { service: ownMail.service },
-      });
-      if (!response?.success) throw new Error(response?.error ? tr(response.error) : tr('Не удалось подключить почту.'));
-      setSettings((current) => ({ ...current, ownMail: { ...ownMail, address: response.payload.address } }));
-      setOwnMailMessage(`${tr('Connected mailbox')} ${response.payload.address}`);
-    } catch (error: any) {
-      setOwnMailMessage(error.message ? tr(error.message) : tr('Ошибка авторизации.'));
-    } finally {
-      setOwnMailBusy(false);
-    }
-  };
-
-  const disconnectOwnMail = async () => {
-    if (!settings.ownMail) return;
-    await chrome.runtime.sendMessage({ type: 'DISCONNECT_OWN_MAIL', payload: { service: settings.ownMail.service } });
-    setSettings((current) => ({ ...current, ownMail: current.ownMail ? { ...current.ownMail, address: '' } : undefined }));
-    setOwnMailMessage(tr('Почта отключена.'));
   };
 
   const testProvider = async (providerId: string) => {
@@ -310,47 +276,20 @@ export const Options: React.FC = () => {
               <div>
                 <h2 className="text-base font-semibold text-white">{tr('Почтовые сервисы')}</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  {tr('Подключите личный ящик через OAuth или настройте временную почту.')}
+                  {tr('Выберите временную почту или укажите адрес для ручной проверки.')}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-800/50 border border-indigo-800/60 rounded-xl space-y-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-white">{tr('Собственная почта')}</h3>
-                  <p className="text-xs text-slate-400 mt-1">{tr('Gmail проверяется автоматически после входа через Google. Для Proton Mail письмо открывается в браузере, а код вводится вручную.')}</p>
-                </div>
-                <p role="note" className="text-xs leading-relaxed text-amber-200 bg-amber-950/40 border border-amber-700/50 rounded-lg p-3">
-                  {tr('Для регистраций используйте отдельный почтовый ящик, а не основную почту. При подключении Gmail RegMyAss получает доступ на чтение писем выбранного аккаунта.')}
-                </p>
-                <select
-                  value={settings.ownMail?.service || 'gmail'}
-                  onChange={(event) => saveSettings({ ownMail: { service: event.target.value as 'gmail' | 'proton', address: '' } })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm"
-                >
-                  <option value="gmail">Gmail</option>
-                  <option value="proton">Proton Mail</option>
-                </select>
-                {settings.ownMail?.service === 'proton' ? <>
-                  <label className="block text-xs text-slate-300">{tr('Адрес Proton Mail')}</label>
-                  <input
-                    type="email"
-                    value={settings.ownMail.address}
-                    onChange={(event) => setSettings((current) => ({ ...current, ownMail: { service: 'proton', address: event.target.value } }))}
-                    onBlur={() => saveSettings({ ownMail: settings.ownMail })}
-                    placeholder={tr('имя@proton.me')}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs"
-                  />
-                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-medium">{tr('Открыть Proton Mail в браузере')}</button>
-                  <p className="text-[11px] text-slate-500">{tr('Войдите в Proton Mail на его сайте. Расширение использует этот адрес при регистрации, но не получает доступ к письмам.')}</p>
-                </> : <>
-                  {!oauthConfigured && <p className="text-[11px] text-amber-300">{tr('В этой сборке не настроен Google OAuth. Инструкция — в OAUTH_SETUP.md.')}</p>}
-                  {settings.ownMail?.address && <p className="text-xs text-emerald-300">{tr('Подключено:')} {settings.ownMail.address}</p>}
-                  {ownMailMessage && <p className="text-xs text-slate-300">{ownMailMessage}</p>}
-                  <div className="flex gap-2">
-                    <button onClick={connectOwnMail} disabled={ownMailBusy || !oauthConfigured} className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-xs font-medium">{ownMailBusy ? tr('Вход...') : tr('Войти через Google')}</button>
-                    {settings.ownMail?.address && <button onClick={disconnectOwnMail} className="px-3 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs">{tr('Отключить')}</button>}
-                  </div>
-                </>}
+                <h3 className="text-sm font-semibold text-white">{tr('Собственная почта')}</h3>
+                <p className="text-xs text-slate-400">{tr('Укажите адрес для регистрации. Проверяйте письма самостоятельно в своей почте; расширение не запрашивает доступ к ящику.')}</p>
+                <p role="note" className="text-xs leading-relaxed text-amber-200 bg-amber-950/40 border border-amber-700/50 rounded-lg p-3">{tr('Для регистраций лучше использовать отдельный ящик, а не основную почту.')}</p>
+                <label className="block text-xs text-slate-300">{tr('Адрес почты')}</label>
+                <input type="email" value={settings.ownMail?.address || ''}
+                  onChange={(event) => setSettings((current) => ({ ...current, ownMail: { address: event.target.value } }))}
+                  onBlur={() => saveSettings({ ownMail: { address: settings.ownMail?.address.trim() || '' } })}
+                  placeholder="name@example.com"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs" />
               </div>
 
               {/* Auto Selection Toggle */}
@@ -397,6 +336,8 @@ export const Options: React.FC = () => {
                     url: 'https://dropmail.me',
                     free: true,
                   },
+                  { id: 'smails', name: 'smails', desc: tr('Одноразовый ящик с API и токеном доступа.'), url: 'https://smails.dev', free: true },
+                  { id: 'maildrop', name: 'Maildrop', desc: tr('Публичный ящик с GraphQL API; письма могут задерживаться.'), url: 'https://maildrop.cc', free: true },
                   {
                     id: 'guerrilla',
                     name: 'Guerrilla Mail',

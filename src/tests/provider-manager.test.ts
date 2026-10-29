@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS } from '../shared/constants';
 import { Mailbox } from '../shared/types';
 
 describe('ProviderManager', () => {
-  it('registers standard 4 providers by default', () => {
+  it('registers temporary and manual providers by default', () => {
     const manager = new ProviderManager();
     const providers = manager.getAllProviders();
     expect(providers.length).toBeGreaterThanOrEqual(4);
@@ -13,6 +13,9 @@ describe('ProviderManager', () => {
     expect(manager.getProvider('mail-gw')).toBeDefined();
     expect(manager.getProvider('dropmail')).toBeDefined();
     expect(manager.getProvider('guerrilla')).toBeDefined();
+    expect(manager.getProvider('smails')).toBeDefined();
+    expect(manager.getProvider('maildrop')).toBeDefined();
+    expect(manager.getProvider('own-mail')).toBeDefined();
   });
 
   it('selects preferred provider when auto-select is disabled', async () => {

@@ -488,7 +488,7 @@ export const Popup: React.FC = () => {
             )}
 
             {/* Mailbox Inbox Accordion */}
-            {activeProcess.mailbox && !activeProcess.mailbox.id.startsWith('proton:') && (
+            {activeProcess.mailbox && !activeProcess.mailbox.id.startsWith('manual:') && (
               <div className="space-y-1 pt-0.5">
                 <button
                   onClick={() => fetchInbox()}
@@ -661,22 +661,21 @@ export const Popup: React.FC = () => {
             {/* Email Waiting Actions */}
             {activeProcess.state === 'awaiting_email' && (
               <div className="space-y-2 pt-1">
-                {activeProcess.mailbox?.id.startsWith('proton:') && <div className="space-y-2">
-                  <p className="text-[11px] text-purple-200">{tr('Откройте Proton Mail, найдите письмо подтверждения и скопируйте код или перейдите по ссылке.')}</p>
-                  <button onClick={() => chrome.tabs.create({ url: 'https://mail.proton.me/u/0/inbox' })} className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs rounded-lg">{tr('Открыть Proton Mail')}</button>
+                {activeProcess.mailbox?.id.startsWith('manual:') && <div className="space-y-2">
+                  <p className="text-[11px] text-purple-200">{tr('Проверьте свою почту, скопируйте код или перейдите по ссылке подтверждения.')}</p>
                   <input value={manualCode} onChange={(event) => setManualCode(event.target.value)} placeholder={tr('Код из письма, если есть')} className="w-full p-2 bg-slate-900 border border-slate-700 text-slate-100 text-xs rounded-lg" />
                 </div>}
                 <div className="p-2.5 bg-purple-950/40 border border-purple-800/50 rounded-xl space-y-1.5 text-[11px] text-purple-200">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1.5 font-medium text-purple-300">
                       <Mail className="w-3.5 h-3.5 animate-pulse text-purple-400" />
-                      {activeProcess.mailbox?.id.startsWith('proton:') ? tr('Ожидание ручного подтверждения') : tr('Опрос входящих писем...')}
+                      {activeProcess.mailbox?.id.startsWith('manual:') ? tr('Ожидание ручного подтверждения') : tr('Опрос входящих писем...')}
                     </span>
-                    {!activeProcess.mailbox?.id.startsWith('proton:') && <span className="font-mono text-[10px] text-purple-300">
+                    {!activeProcess.mailbox?.id.startsWith('manual:') && <span className="font-mono text-[10px] text-purple-300">
                       {activeProcess.emailWaitSeconds || 0}s / {settings.emailTimeoutSeconds}s
                     </span>}
                   </div>
-                  {!activeProcess.mailbox?.id.startsWith('proton:') && <div className="w-full bg-purple-950/80 rounded-full h-1.5 overflow-hidden">
+                  {!activeProcess.mailbox?.id.startsWith('manual:') && <div className="w-full bg-purple-950/80 rounded-full h-1.5 overflow-hidden">
                     <div
                       className="bg-purple-500 h-1.5 rounded-full transition-all duration-300"
                       style={{
@@ -687,11 +686,11 @@ export const Popup: React.FC = () => {
                       }}
                     />
                   </div>}
-                  {!activeProcess.mailbox?.id.startsWith('proton:') && <p className="text-[10px] text-purple-400 leading-tight">{tr('Письмо автоматически опрашивается. Если сайт не отправляет письмо или вы тестируете:')}</p>}
+                  {!activeProcess.mailbox?.id.startsWith('manual:') && <p className="text-[10px] text-purple-400 leading-tight">{tr('Письмо автоматически опрашивается. Если сайт не отправляет письмо или вы тестируете:')}</p>}
                 </div>
 
                 <div className="space-y-1.5">
-                  {!activeProcess.mailbox?.id.startsWith('proton:') && <button
+                  {!activeProcess.mailbox?.id.startsWith('manual:') && <button
                     onClick={handleSimulateEmail}
                     className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                   >
@@ -761,11 +760,13 @@ export const Popup: React.FC = () => {
                   className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500"
                 >
                   <option value="auto">{tr('Автовыбор временной почты')}</option>
-                  {settings.ownMail?.address && <option value="own-mail">{settings.ownMail.service === 'proton' ? 'Proton Mail' : 'Gmail'}: {settings.ownMail.address}</option>}
+                  {settings.ownMail?.address && <option value="own-mail">{tr('Собственная почта')}: {settings.ownMail.address}</option>}
                   <option value="mail-tm">{tr('Mail.tm (Быстрый & надёжный)')}</option>
                   <option value="mail-gw">{tr('Mail.gw (Зеркало Mail.tm)')}</option>
                   <option value="dropmail">DropMail.me (GraphQL)</option>
                   <option value="guerrilla">{tr('Guerrilla Mail (Классический)')}</option>
+                  <option value="smails">smails</option>
+                  <option value="maildrop">Maildrop</option>
                 </select>
               {!settings.ownMail?.address && <button onClick={openOptions} className="text-[11px] text-indigo-300 hover:text-white">{tr('Настроить собственную почту →')}</button>}
             </div>

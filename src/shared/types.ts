@@ -173,10 +173,7 @@ export interface ActiveProcess {
 
 export interface UserSettings {
   locale: 'en' | 'es' | 'ru';
-  ownMail?: {
-    service: 'gmail' | 'proton';
-    address: string;
-  };
+  ownMail?: { address: string };
   autoSelectProvider: boolean;
   preferredProviderId: string;
   enabledProviders: string[];
