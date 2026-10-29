@@ -4,6 +4,8 @@
 
 import { UserSettings } from './types';
 
+export const DONATE_URL = 'https://ko-fi.com/ilyaorange';
+
 export const DEFAULT_SETTINGS: UserSettings = {
   locale: 'en',
   ownMail: { address: '' },

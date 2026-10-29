@@ -6,7 +6,7 @@ import {
   StoredAccount,
   UserSettings,
 } from '../../shared/types';
-import { DEFAULT_SETTINGS } from '../../shared/constants';
+import { DEFAULT_SETTINGS, DONATE_URL } from '../../shared/constants';
 import { translateError } from '../../shared/i18n';
 import { buildFailureReportUrl } from '../../shared/report';
 import { MessageParser } from '../../email/message-parser';
@@ -27,6 +27,7 @@ import {
   X,
   Pin,
   PinOff,
+  Heart,
 } from 'lucide-react';
 
 type PictureInPictureApi = {
@@ -797,6 +798,15 @@ export const Popup: React.FC = () => {
       {/* Footer Info */}
       <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
         <span>RegMyAss v{chrome.runtime.getManifest().version}</span>
+        <button
+          type="button"
+          onClick={() => chrome.tabs.create({ url: DONATE_URL })}
+          className="text-rose-300 hover:text-rose-200 flex items-center gap-1 transition-colors"
+          aria-label={tr('Поддержать проект')}
+        >
+          <Heart className="w-3 h-3" />
+          <span>{tr('Поддержать проект')}</span>
+        </button>
         <button
           onClick={openOptions}
           className="hover:text-slate-400 flex items-center gap-1 transition-colors"

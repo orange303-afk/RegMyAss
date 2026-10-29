@@ -4,7 +4,7 @@ import {
   StoredAccount,
   UserSettings,
 } from '../../shared/types';
-import { DEFAULT_SETTINGS } from '../../shared/constants';
+import { DEFAULT_SETTINGS, DONATE_URL } from '../../shared/constants';
 import { translateError } from '../../shared/i18n';
 import { AddressGenerator } from '../../accounts/address-generator';
 import {
@@ -19,6 +19,8 @@ import {
   Lock,
   User,
   Sparkles,
+  Heart,
+  ExternalLink,
 } from 'lucide-react';
 
 type Tab = 'providers' | 'registration' | 'profile' | 'security' | 'history' | 'diagnostic';
@@ -263,6 +265,21 @@ export const Options: React.FC = () => {
             <Activity className="w-4 h-4" />
             <span>{tr('Диагностика')}</span>
           </button>
+          <div className="mt-6 rounded-xl border border-rose-900/50 bg-rose-950/20 p-4 space-y-3 text-center">
+            <div className="flex items-center justify-center gap-1.5 text-rose-200 text-xs font-semibold">
+              <Heart className="w-4 h-4" />
+              <span>{tr('Поддержать проект')}</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-slate-400">{tr('Если RegMyAss вам полезен, вы можете поддержать разработку.')}</p>
+            <button
+              type="button"
+              onClick={() => chrome.tabs.create({ url: DONATE_URL })}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-500 transition-colors"
+            >
+              {tr('Поддержать проект')}
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </nav>
 
         {/* Content Area */}
