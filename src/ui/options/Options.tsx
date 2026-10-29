@@ -319,6 +319,9 @@ export const Options: React.FC = () => {
                   <h3 className="text-sm font-semibold text-white">{tr('Собственная почта')}</h3>
                   <p className="text-xs text-slate-400 mt-1">{tr('Gmail проверяется автоматически после входа через Google. Для Proton Mail письмо открывается в браузере, а код вводится вручную.')}</p>
                 </div>
+                <p role="note" className="text-xs leading-relaxed text-amber-200 bg-amber-950/40 border border-amber-700/50 rounded-lg p-3">
+                  {tr('Для регистраций используйте отдельный почтовый ящик, а не основную почту. При подключении Gmail RegMyAss получает доступ на чтение писем выбранного аккаунта.')}
+                </p>
                 <select
                   value={settings.ownMail?.service || 'gmail'}
                   onChange={(event) => saveSettings({ ownMail: { service: event.target.value as 'gmail' | 'proton', address: '' } })}

@@ -28,6 +28,7 @@ const messages: Record<string, [string, string]> = {
   'Откройте Proton Mail в браузере и проверьте письмо вручную.': ['Open Proton Mail in your browser and check the message manually.', 'Abre Proton Mail en el navegador y revisa el mensaje manualmente.'],
   'Письма Proton Mail открываются в браузере.': ['Proton Mail messages open in the browser.', 'Los mensajes de Proton Mail se abren en el navegador.'],
   'Собственная почта': ['Personal email', 'Correo personal'],
+  'Для регистраций используйте отдельный почтовый ящик, а не основную почту. При подключении Gmail RegMyAss получает доступ на чтение писем выбранного аккаунта.': ['Use a separate mailbox for registrations, not your primary email. Connecting Gmail gives RegMyAss read access to messages in the selected account.', 'Usa un buzón separado para los registros, no tu correo principal. Al conectar Gmail, RegMyAss obtiene acceso de lectura a los mensajes de la cuenta elegida.'],
   'Connected mailbox': ['Connected mailbox', 'Buzón conectado'],
   'Mailbox created:': ['Mailbox created:', 'Buzón creado:'],
   'Настройки': ['Settings', 'Configuración'],

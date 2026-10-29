@@ -6,6 +6,7 @@
 
 - Detects registration forms, including dynamic forms and forms inside frames, and fills them with generated account details.
 - Supports Mail.tm, Mail.gw, DropMail.me and Guerrilla Mail, plus Gmail through OAuth and Proton Mail with manual confirmation.
+- Use a separate mailbox for registrations. Do not connect your primary inbox; Gmail OAuth grants the extension read access to messages in the selected account.
 - Finds verification links and one-time codes in email; a confirmation link can be opened directly from the extension.
 - Pauses for manual CAPTCHA completion and asks before submitting forms when configured.
 - Can save account details with Chrome Password Manager or an encrypted local vault.
@@ -47,6 +48,7 @@ In Chrome, open `chrome://extensions`, enable **Developer mode**, select **Load 
 - **Поддержка современных SPA и фреймворков:** Работает с React, Vue, Angular, Svelte, динамическими модальными окнами и Shadow DOM благодаря прямому вызову нативных дескрипторов прототипа и генерации событий `input`, `change`, `blur`.
 - **4 проверенных почтовых провайдера "из коробки":** Mail.tm, Mail.gw, DropMail.me, Guerrilla Mail.
 - **Собственная почта:** Gmail с автоматическим чтением через OAuth и Proton Mail с ручным подтверждением в браузере. Настройка Gmail описана в [OAUTH_SETUP.md](OAUTH_SETUP.md).
+- **Отдельный ящик для регистраций:** Не подключайте основную почту. Доступ Gmail через OAuth позволяет расширению читать письма выбранного аккаунта.
 - **Отказоустойчивость и автовыбор (Failover):** Если у выбранного провайдера исчерпана квота или недоступен API, расширение автоматически переключается на резервный сервис.
 - **Умное подтверждение email:**
   - Извлечение verification link (ссылки активации) без выполнения небезопасного JavaScript.
