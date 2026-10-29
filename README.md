@@ -1,4 +1,6 @@
-# RegMyAss ⚡ **Support RegMyAss:** [Donate on Ko-fi](https://ko-fi.com/ilyaorange).
+# RegMyAss ⚡ 
+
+**Support RegMyAss:** [Donate on Ko-fi](https://ko-fi.com/ilyaorange).
 
 > A Chrome Manifest V3 extension that helps register accounts using temporary or personal email, detects registration forms, generates account details, handles email verification, and stores credentials.
 
